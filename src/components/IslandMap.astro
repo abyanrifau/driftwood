@@ -14,7 +14,7 @@ const { id = 'map', listHeading = 'Walking times from the house' } = Astro.props
 const pos = (p: { x: number; y: number }) => ({ x: (p.x / mapViewBox.width) * 100, y: (p.y / mapViewBox.height) * 100 });
 const walk = pos({ x: (places[0].x + places[1].x) / 2, y: (places[0].y + places[1].y) / 2 });
 /** A few labels drawn on the map itself; every place is still in the list. */
-const labelled: Record<string, 'left' | 'right'> = { driftwood: 'right', jetty: 'right', village: 'left', 'bikini-beach': 'left', sandbank: 'left' };
+const labelled: Record<string, 'left' | 'right'> = { driftwood: 'right', jetty: 'right', island: 'left', 'bikini-beach': 'left', sandbank: 'left' };
 const labels = places.filter((p) => p.id in labelled).map((p) => ({ ...pos(p), name: p.id === 'sandbank' ? 'Sandbank' : p.name, side: labelled[p.id] }));
 ---
 

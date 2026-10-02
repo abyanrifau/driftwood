@@ -34,7 +34,7 @@ veg=thin(outline(36,2.6,ph=1.1),2)
 reef=thin(outline(104,8,ph=2.0),2)
 lagoon=thin(outline(78,5,ph=2.7),2)
 out={'island':catmull(island),'veg':catmull(veg),'reef':catmull(reef),'lagoon':catmull(lagoon)}
-# village blocks: t in 0.12..0.5, within veg width
+# island blocks: t in 0.12..0.5, within veg width
 blocks=[]
 for i in range(140):
     t=random.uniform(0.06,0.5); c=cl(t); w=profile(t,36)*0.82
@@ -50,7 +50,7 @@ for i in range(140):
     palms.append((round(x,1),round(y,1),round(random.uniform(3,5.5),1)))
 out['palms']=palms
 def at(t,o): c=cl(t); return (round(c[0]+px*o,1), round(c[1]+py*o,1))
-out['pts']={k:at(*v) for k,v in {'driftwood':(0.7,38),'reef':(0.655,102),'bikini':(0.955,6),'jetty':(0.46,-66),'village':(0.27,2),'teashop':(0.4,18),'cafe':(0.05,4),'pitch':(0.55,-14)}.items()}
+out['pts']={k:at(*v) for k,v in {'driftwood':(0.7,38),'reef':(0.655,102),'bikini':(0.955,6),'jetty':(0.46,-66),'island':(0.27,2),'teashop':(0.4,18),'cafe':(0.05,4),'pitch':(0.55,-14)}.items()}
 out['axis']={'ux':ux,'uy':uy,'px':px,'py':py}
 
 print(out['pts'], out['axis'])
@@ -63,7 +63,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 p = out['pts']; ang = math.degrees(math.atan2(uy, ux))
 # A quiet line drawing in the site palette: sea-tinted water, hairline
-# outlines, outlined village blocks, a dotted reef edge. Square corners.
+# outlines, outlined island blocks, a dotted reef edge. Square corners.
 INK = '#1E1A17'; SEA = '#3E6F70'; CREAM = '#F6F2EC'; TAUPE = '#8B8178'
 blocks = ''.join(f'<rect x="{round(x-w/2,1)}" y="{round(y-h/2,1)}" width="{w}" height="{h}" transform="rotate({ang:.1f} {x} {y})"/>' for x,y,w,h in out['blocks'])
 palms = ''.join(f'<circle cx="{x}" cy="{y}" r="{round(r*0.42,1)}"/>' for x,y,r in out['palms'])

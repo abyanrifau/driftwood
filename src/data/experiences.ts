@@ -89,7 +89,7 @@ export const experiences: Experience[] = [
   {
     slug: 'local-island-walk',
     name: 'Local Island Walk',
-    line: 'An hour through the village with a local guide.',
+    line: 'An hour around the island with a local guide.',
     detail: '1 hour · Daily except Friday, 4pm · 8 guests at most',
     price: 20,
     priceUnit: 'per person',
@@ -99,10 +99,10 @@ export const experiences: Experience[] = [
     groupSize: 'Eight guests at most',
     inclusions: ['Local guide', 'Sweet tea and short eats at a tea shop'],
     description: [
-      'Maafushi has about three thousand residents, a school, a mosque and a working harbour. The walk follows the village lanes past the boatyard and the old banyan tree, with time for questions.',
+      'Maafushi has about three thousand residents, a school, a mosque and a working harbour. The walk follows the island’s lanes past the boatyard and the old banyan tree, with time for questions.',
       'It ends at a tea shop for sweet black tea and hedhikaa, the small fried snacks served across the Maldives in the late afternoon.',
     ],
-    goodToKnow: 'Please cover shoulders and knees in the village. We can lend you a sarong.',
+    goodToKnow: 'Please cover shoulders and knees on the walk. We can lend you a sarong.',
     photo: { key: 'street', alt: 'White sand path through palms and gardens on Maafushi', caption: 'Maafushi, 4pm' },
   },
 ];

@@ -12,7 +12,7 @@ export interface Place {
   fromDriftwood: string;
   x: number;
   y: number;
-  kind: 'home' | 'nature' | 'transport' | 'food' | 'village';
+  kind: 'home' | 'nature' | 'transport' | 'food' | 'island';
 }
 
 export const places: Place[] = [
@@ -53,17 +53,17 @@ export const places: Place[] = [
     kind: 'transport',
   },
   {
-    id: 'village',
-    name: 'The village',
+    id: 'island',
+    name: 'Island center',
     description: 'School, mosque, shops and the football pitch.',
     fromDriftwood: '3 minutes on foot',
     x: 185,
     y: 243.7,
-    kind: 'village',
+    kind: 'island',
   },
   {
     id: 'tea-shop',
-    name: 'Village tea shop',
+    name: 'Island tea shop',
     description: 'Sweet black tea and hedhikaa, the late-afternoon fried snacks. Cash only.',
     fromDriftwood: '4 minutes on foot',
     x: 242.5,

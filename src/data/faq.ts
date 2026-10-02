@@ -34,7 +34,7 @@ export const faqs: Faq[] = [
     top: true,
     question: 'Is there a bikini beach on Maafushi, and what are the local rules?',
     answer:
-      'Yes. Maafushi is a local island, so swimwear is fine on the designated bikini beach, a 6-minute walk from Driftwood, and on the sandbank and boat trips. In the village and on the street, cover shoulders and knees. A sarong or a T-shirt over swimwear is enough. We can lend you a sarong.',
+      'Yes. Maafushi is a local island, so swimwear is fine on the designated bikini beach, a 6-minute walk from Driftwood, and on the sandbank and boat trips. Elsewhere on the island, cover shoulders and knees. A sarong or a T-shirt over swimwear is enough. We can lend you a sarong.',
   },
   {
     id: 'alcohol',

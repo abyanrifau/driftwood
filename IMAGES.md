@@ -132,7 +132,7 @@ They passed the review against the new rules.
 ### Removed without a direct replacement
 
 - `reef-above`: reef from above. The new reef chapter uses a tall portrait and one detail instead.
-- `street-bikes`: a village street with thatched stalls and clutter.
+- `street-bikes`: an island street with thatched stalls and clutter.
 - `bicycle-palm`: a bicycle against a palm. The 404 page now uses `wet-sand`.
 
 ## Slots where a better photo is still wanted
@@ -143,7 +143,7 @@ These slots work, but a free photo that fits exactly could not be found. To supp
    - **Wanted:** a ground-floor room with a whitewashed wall and a low teak veranda with two chairs, opening straight onto white sand with the lagoon beyond. Late-afternoon light, landscape, at least 2,400px wide.
 2. **Exterior of the house** (`house`). The current photo is refined but was shot with a wide lens, and the left column bends slightly. The focal point keeps the 21:9 crop clear of the worst of it.
    - **Wanted:** a straight-on view of a two-storey whitewashed guesthouse with teak shutters and palms at golden hour. Landscape, at least 2,400px wide.
-3. **Local Island Walk** (`street`). This is a sand path through gardens, not a village lane.
-   - **Wanted:** a quiet Maldivian village lane with white coral walls, a sand street and soft light, with no people posing. At least 1,600px wide.
+3. **Local Island Walk** (`street`). This is a sand path through gardens, not one of the island’s lanes.
+   - **Wanted:** a quiet lane on a Maldivian local island, with white coral walls, a sand street and soft light, with no people posing. At least 1,600px wide.
 4. **Rooftop Suite daybed** (`rooftop-3`). The stone paving under the daybed reads slightly Mediterranean.
    - **Wanted:** a white canopy daybed on a plastered roof terrace with the lagoon behind. Upright, at least 1,600px wide.
