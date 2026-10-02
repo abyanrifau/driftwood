@@ -1,0 +1,236 @@
+---
+/**
+ * Line map of Maafushi. The artwork is static SVG (no JS); the hotspots are
+ * a small island; the list beside it gives the same places as text.
+ */
+import MapHotspots from './islands/MapHotspots';
+import { places, mapViewBox } from '../data/places';
+
+interface Props {
+  id?: string;
+  listHeading?: string;
+}
+const { id = 'map', listHeading = 'Walking times from the house' } = Astro.props;
+const pos = (p: { x: number; y: number }) => ({ x: (p.x / mapViewBox.width) * 100, y: (p.y / mapViewBox.height) * 100 });
+const walk = pos({ x: (places[0].x + places[1].x) / 2, y: (places[0].y + places[1].y) / 2 });
+/** A few labels drawn on the map itself; every place is still in the list. */
+const labelled: Record<string, 'left' | 'right'> = { driftwood: 'right', jetty: 'right', village: 'left', 'bikini-beach': 'left', sandbank: 'left' };
+const labels = places.filter((p) => p.id in labelled).map((p) => ({ ...pos(p), name: p.id === 'sandbank' ? 'Sandbank' : p.name, side: labelled[p.id] }));
+---
+
+<div class="island-map">
+  <figure class="map-figure" data-reveal>
+    <div class="map-frame">
+      <img class="map-art" src="/map/maafushi.svg" width="600" height="560" alt="" loading="lazy" decoding="async" />
+      {
+        labels.map((l) => (
+          <span class:list={['map-label', `map-label--${l.side}`]} style={`left:${l.x}%;top:${l.y}%`} aria-hidden="true">
+            {l.name}
+          </span>
+        ))
+      }
+      <span class="walk-label" style={`left:${walk.x - 8}%;top:${walk.y}%`} aria-hidden="true">2 min</span>
+      <MapHotspots client:visible places={places} width={mapViewBox.width} height={mapViewBox.height} idPrefix={id} />
+    </div>
+    <figcaption class="caption">Maafushi, Kaafu Atoll. Select a marker for walking times. Not to scale.</figcaption>
+  </figure>
+
+  <div class="map-list-wrap">
+    <h3 class="map-list-title label">{listHeading}</h3>
+    <ul role="list" class="map-list">
+      {
+        places.map((p) => (
+          <li>
+            <span class:list={['map-list-dot', `map-list-dot--${p.kind}`]} aria-hidden="true" />
+            <span class="map-list-body">
+              <span class="map-list-name">{p.name}</span>
+              <span class="map-list-time">{p.fromDriftwood}</span>
+              <span class="map-list-desc">{p.description}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<style>
+  .island-map {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  @media (min-width: 1080px) {
+    .island-map {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 4rem;
+    }
+  }
+  .map-frame {
+    position: relative;
+    aspect-ratio: 600 / 560;
+    overflow: hidden;
+    background: #dce6e4;
+    border: 1px solid var(--hairline);
+  }
+  .map-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .map-label,
+  .walk-label {
+    position: absolute;
+    transform: translate(14px, -50%);
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--ink);
+    pointer-events: none;
+  }
+  .map-label--left {
+    transform: translate(calc(-100% - 14px), -50%);
+  }
+  .walk-label {
+    transform: translate(-100%, -50%);
+    padding: 0.1rem 0.4rem;
+    background: var(--ink);
+    color: var(--cream);
+  }
+  @media (max-width: 479px) {
+    .map-label {
+      display: none;
+    }
+  }
+
+  /* Hotspots (island markup). The marker dots are the one circle on the
+     site: a map location dot is round by nature. The buttons are square. */
+  .map-frame :global(.hotspots) {
+    position: absolute;
+    inset: 0;
+  }
+  .map-frame :global(.hotspot) {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    display: grid;
+    place-items: center;
+  }
+  .map-frame :global(.hotspot-dot) {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 1px solid var(--ink);
+    transition:
+      transform 0.4s var(--ease),
+      background-color 0.3s;
+  }
+  .map-frame :global(.hotspot--home .hotspot-dot) {
+    width: 14px;
+    height: 14px;
+    background: var(--ink);
+  }
+  .map-frame :global(.hotspot:hover .hotspot-dot),
+  .map-frame :global(.hotspot.is-active .hotspot-dot) {
+    transform: scale(1.35);
+    background: var(--ink);
+  }
+  .map-frame :global(.hotspot:focus-visible) {
+    outline: 1px solid var(--ink);
+    outline-offset: -6px;
+  }
+  .map-frame :global(.map-card) {
+    position: absolute;
+    z-index: 2;
+    width: min(250px, 64%);
+    padding: 0.9rem 1rem;
+    background: var(--ivory);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    transform: translate(calc(var(--dx) + var(--ox)), var(--dy));
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.35s var(--ease);
+  }
+  .map-frame :global(.map-card.is-open) {
+    opacity: 1;
+    visibility: visible;
+  }
+  .map-frame :global(.map-card-name) {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .map-frame :global(.map-card-desc) {
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .map-frame :global(.map-card-time) {
+    margin-top: 0.5rem;
+    font-size: 0.66rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+  }
+
+  .map-list-title {
+    margin-bottom: 1rem;
+  }
+  .map-list {
+    display: grid;
+    border-top: 1px solid var(--hairline);
+  }
+  .map-list li {
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--hairline);
+    line-height: 1.45;
+  }
+  .map-list-body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 1rem;
+    flex: 1;
+  }
+  .map-list-name {
+    font-weight: 400;
+  }
+  .map-list-time {
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+    white-space: nowrap;
+    align-self: center;
+  }
+  .map-list-desc {
+    grid-column: 1 / -1;
+    font-size: var(--step--1);
+    color: var(--taupe-ink);
+  }
+  .map-list-dot {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    margin-top: 0.5rem;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 1px solid var(--ink);
+  }
+  .map-list-dot--home {
+    background: var(--ink);
+  }
+</style>

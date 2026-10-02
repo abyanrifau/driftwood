@@ -1,0 +1,222 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import IslandMap from '../components/IslandMap.astro';
+import Icon from '../components/Icon.astro';
+import { site, whatsappLink } from '../data/site';
+import { breadcrumbs } from '../lib/schema';
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Contact', path: '/contact/' },
+];
+---
+
+<Base
+  title="Contact Driftwood, Maafushi: WhatsApp and email"
+  description="Message Driftwood on WhatsApp or email. We reply within a few hours, 8am to 10pm Maldives time. Or send a short enquiry with your dates."
+  og="contact"
+  schema={[breadcrumbs(Astro.site!, trail)]}
+>
+  <PageHero eyebrow="Contact" title="Contact" lede={`${site.contact.replyTime} WhatsApp is the quickest way to reach us.`} trail={trail} />
+
+  <section class="container contact-grid" aria-label="Ways to reach us">
+    <div class="contact-ways">
+      <a class="way way--wa" href={whatsappLink('Hi Driftwood, a question:')}>
+        <Icon name="whatsapp" size={28} />
+        <span>
+          <strong>WhatsApp</strong>
+          <span>{site.contact.whatsappDisplay}</span>
+        </span>
+      </a>
+      <a class="way" href={`mailto:${site.contact.email}`}>
+        <Icon name="mail" size={28} />
+        <span>
+          <strong>Email</strong>
+          <span>{site.contact.email}</span>
+        </span>
+      </a>
+      <a class="way" href={site.contact.instagram}>
+        <Icon name="instagram" size={28} />
+        <span>
+          <strong>Instagram</strong>
+          <span>{site.contact.instagramHandle}</span>
+        </span>
+      </a>
+      <p class="contact-address">
+        <Icon name="pin" size={20} />
+        <span>Driftwood, {site.location.short}. Five minutes on foot from the jetty, on the reef side of the island.</span>
+      </p>
+      <p class="contact-book">
+        Booking online takes about a minute.
+        <a class="btn btn--small" href="/book/" data-astro-reload data-booking-start>Check availability</a>
+      </p>
+    </div>
+
+    <div class="contact-form-wrap">
+      <h2 class="contact-form-title">Send an enquiry</h2>
+      <form class="contact-form" method="post" novalidate data-contact-form>
+        <div class="field">
+          <label for="c-name">Your name</label>
+          <input class="input" id="c-name" name="name" type="text" autocomplete="name" required />
+          <p class="field-error" id="c-name-error" hidden>Add your name.</p>
+        </div>
+        <div class="field">
+          <label for="c-email">Email</label>
+          <input class="input" id="c-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+          <p class="field-error" id="c-email-error" hidden>Check the email address, for example name@example.com.</p>
+        </div>
+        <div class="field">
+          <label for="c-dates">Dates <span class="muted">(optional)</span></label>
+          <input class="input" id="c-dates" name="dates" type="text" autocomplete="off" aria-describedby="c-dates-hint" />
+          <p class="hint" id="c-dates-hint">For example, 12 to 19 March</p>
+        </div>
+        <div class="field">
+          <label for="c-message">Message</label>
+          <textarea class="input" id="c-message" name="message" rows="5" maxlength="1500" required></textarea>
+          <p class="field-error" id="c-message-error" hidden>Add a short message.</p>
+        </div>
+        <p class="demo-note"><span>This is a Nuit Works concept. The form does not send anything.</span></p>
+        <button class="btn btn--large" type="submit">Send enquiry</button>
+        <p class="contact-status" role="status" aria-live="polite" data-contact-status></p>
+      </form>
+    </div>
+  </section>
+
+  <section class="section section--sand" aria-labelledby="contact-map-title">
+    <div class="container">
+      <SectionHead eyebrow="Find us" title="On Maafushi" id="contact-map-title" />
+      <IslandMap id="contact-map" />
+    </div>
+  </section>
+</Base>
+
+<script>
+  const init = () => {
+    const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+    const status = form.querySelector<HTMLElement>('[data-contact-status]')!;
+    const fields = ['name', 'email', 'message'] as const;
+    const valid = (name: (typeof fields)[number], v: string) =>
+      name === 'email' ? /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) : v.trim().length > 0;
+    const check = (name: (typeof fields)[number]) => {
+      const input = form.elements.namedItem(name) as HTMLInputElement;
+      const err = form.querySelector<HTMLElement>(`#c-${name}-error`)!;
+      const ok = valid(name, input.value);
+      input.setAttribute('aria-invalid', String(!ok));
+      if (ok) input.removeAttribute('aria-describedby');
+      else input.setAttribute('aria-describedby', err.id);
+      err.hidden = ok;
+      return ok;
+    };
+    fields.forEach((f) => (form.elements.namedItem(f) as HTMLInputElement).addEventListener('blur', () => check(f)));
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const bad = fields.filter((f) => !check(f));
+      if (bad.length) {
+        (form.elements.namedItem(bad[0]) as HTMLInputElement).focus();
+        status.textContent = '';
+        return;
+      }
+      const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim().split(' ')[0];
+      status.textContent = `Thanks, ${name}. As this is a concept, nothing was sent. On the real site we would reply within a few hours.`;
+      form.reset();
+      fields.forEach((f) => (form.elements.namedItem(f) as HTMLInputElement).removeAttribute('aria-invalid'));
+    });
+  };
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .contact-grid {
+    display: grid;
+    gap: var(--space-xl);
+    padding-bottom: var(--space-3xl);
+  }
+  @media (min-width: 1000px) {
+    .contact-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      column-gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+    }
+  }
+  .contact-ways {
+    display: grid;
+    align-content: start;
+    border-top: 1px solid var(--hairline);
+  }
+  .way {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    min-height: 84px;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--hairline);
+    text-decoration: none;
+  }
+  .way :global(svg) {
+    flex: none;
+  }
+  .way span {
+    display: grid;
+  }
+  .way strong {
+    font-family: var(--serif);
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.15;
+  }
+  .way:hover strong {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .way span span {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+  .contact-address {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+    color: var(--ink-soft);
+  }
+  .contact-address :global(svg) {
+    flex: none;
+    margin-top: 0.3rem;
+  }
+  .contact-book {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--hairline);
+  }
+  .contact-form-wrap {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    background: var(--ivory);
+    border: 1px solid var(--hairline);
+  }
+  .contact-form-title {
+    font-size: var(--step-3);
+    margin-bottom: 1.5rem;
+  }
+  .contact-form {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .contact-form .btn {
+    justify-self: start;
+  }
+  .contact-status:not(:empty) {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--sea);
+    color: var(--sea);
+    font-weight: 400;
+  }
+</style>

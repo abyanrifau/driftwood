@@ -1,0 +1,284 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import MobileMenu from './islands/MobileMenu';
+import { mainNav, site, whatsappLink } from '../data/site';
+
+interface Props {
+  /** Transparent over a full-bleed hero until the page scrolls */
+  overlay?: boolean;
+}
+const { overlay = false } = Astro.props;
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href);
+---
+
+<header class:list={['site-header', { 'site-header--overlay': overlay }]} data-header={overlay ? '' : undefined}>
+  <div class="container header-inner">
+    <a href="/" class="brand" aria-label="Driftwood, home">
+      <Logo />
+    </a>
+
+    <nav class="nav" aria-label="Main">
+      <ul role="list">
+        {
+          mainNav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <a class="header-wa" href={whatsappLink()} aria-label="WhatsApp us">
+        <Icon name="whatsapp" size={18} />
+        <span>WhatsApp</span>
+      </a>
+      <a class="btn btn--small header-book" href="/book/" data-astro-reload data-booking-start>Book now</a>
+      <div class="menu-slot">
+        <MobileMenu client:visible items={mainNav} current={path} whatsapp={whatsappLink()} email={site.contact.email} />
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--cream);
+    border-bottom: 1px solid var(--hairline);
+    transition:
+      background-color 0.5s var(--ease),
+      border-color 0.5s var(--ease),
+      color 0.5s var(--ease);
+  }
+  .site-header--overlay {
+    position: fixed;
+    inset: 0 0 auto;
+    background: transparent;
+    border-color: rgb(246 242 236 / 0.28);
+    color: var(--cream);
+  }
+  .site-header--overlay.is-solid {
+    background: var(--cream);
+    border-color: var(--hairline);
+    color: var(--ink);
+  }
+  /* Over the photo, Book now is solid cream; once the header turns cream it
+     is the usual espresso. */
+  .site-header--overlay:not(.is-solid) .header-book {
+    --btn-bg: var(--cream);
+    --btn-ink: var(--espresso);
+    --btn-line: var(--cream);
+  }
+  .site-header--overlay:not(.is-solid) .header-book:hover {
+    --btn-bg: transparent;
+    --btn-ink: var(--cream);
+  }
+  .site-header--overlay:not(.is-solid) :focus-visible {
+    outline-color: var(--cream);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: var(--header-h);
+  }
+  .brand {
+    color: inherit;
+    text-decoration: none;
+    margin-right: auto;
+    padding-block: 0.4rem;
+  }
+  .nav {
+    display: none;
+  }
+  .nav ul {
+    display: flex;
+    gap: clamp(1.25rem, 2vw, 2.25rem);
+  }
+  .nav a {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    text-decoration: none;
+    color: inherit;
+  }
+  .nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.3rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .nav a:hover::after,
+  .nav a[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .header-wa {
+    display: none;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    color: inherit;
+    text-decoration: none;
+  }
+  .header-wa:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.4em;
+  }
+
+  @media (min-width: 1180px) {
+    .nav {
+      display: block;
+      margin-right: 1.5rem;
+    }
+    .header-wa {
+      display: inline-flex;
+    }
+    .menu-slot {
+      display: none;
+    }
+  }
+
+  /* Mobile menu (rendered by the island) */
+  .menu-slot :global(.menu-toggle) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 0.25rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    position: relative;
+    z-index: 61;
+  }
+  @media (max-width: 479px) {
+    .menu-slot :global(.menu-toggle-label) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .header-book {
+      padding-inline: 1.1em;
+    }
+    .brand :global(.logo-word) {
+      font-size: 1.45rem;
+    }
+    .brand :global(.logo-mark) {
+      width: 22px;
+      height: 22px;
+    }
+  }
+  .menu-slot :global(.menu-toggle-bars) {
+    display: grid;
+    gap: 6px;
+    width: 22px;
+  }
+  .menu-slot :global(.menu-toggle-bars span) {
+    display: block;
+    height: 1px;
+    background: currentColor;
+    transition: transform 0.4s var(--ease);
+  }
+  .menu-slot :global(.menu-toggle[aria-expanded='true'] .menu-toggle-bars span:first-child) {
+    transform: translateY(3.5px) rotate(45deg);
+  }
+  .menu-slot :global(.menu-toggle[aria-expanded='true'] .menu-toggle-bars span:last-child) {
+    transform: translateY(-3.5px) rotate(-45deg);
+  }
+  :global(html.menu-open) {
+    overflow: hidden;
+  }
+  :global(html.menu-open) .site-header {
+    color: var(--ink);
+    background: var(--cream);
+  }
+  :global(html.menu-open) .site-header .header-book {
+    --btn-bg: var(--espresso);
+    --btn-ink: var(--cream);
+    --btn-line: var(--espresso);
+  }
+  .menu-slot :global(.mobile-menu) {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: calc(var(--header-h) + 2rem) var(--gutter) calc(1.75rem + env(safe-area-inset-bottom));
+    background: var(--cream);
+    color: var(--ink);
+    overflow-y: auto;
+    animation: menu-in 0.6s var(--ease-out);
+  }
+  .menu-slot :global(.mobile-menu[hidden]) {
+    display: none;
+  }
+  .menu-slot :global(.mobile-menu ul) {
+    display: grid;
+    border-top: 1px solid var(--hairline);
+  }
+  .menu-slot :global(.mobile-menu nav li) {
+    border-bottom: 1px solid var(--hairline);
+  }
+  .menu-slot :global(.mobile-menu nav a) {
+    display: block;
+    padding: 0.7rem 0;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(1.9rem, 8vw, 2.5rem);
+    line-height: 1.15;
+    text-decoration: none;
+  }
+  .menu-slot :global(.mobile-menu nav a[aria-current='page']) {
+    font-style: italic;
+  }
+  .menu-slot :global(.mobile-menu-foot) {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .menu-slot :global(.mobile-menu-contact) {
+    color: var(--taupe-ink);
+    font-size: var(--step--1);
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+import Base from '../layouts/Base.astro';
+import BookingFlow from '../components/islands/booking/BookingFlow';
+import { rooms } from '../data/rooms';
+import { site } from '../data/site';
+import { picData } from '../lib/images';
+import { breadcrumbs } from '../lib/schema';
+
+const roomPics = Object.fromEntries(
+  await Promise.all(rooms.map(async (r) => [r.slug, await picData(r.photos[0].key, '', { aspect: 1, widths: [160, 336], sizes: '(min-width: 640px) 168px, 112px' })])),
+);
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Book', path: '/book/' },
+];
+---
+
+<Base
+  title="Book a room at Driftwood, Maafushi"
+  description="Book direct with Driftwood, Maafushi: choose dates and a room, add transfers or trips, and confirm. Itemised quote, breakfast included, no booking fees."
+  og="book"
+  bookingFlow
+  schema={[breadcrumbs(Astro.site!, trail)]}
+>
+  <div class="container book-page">
+    <header class="book-head">
+      <h1>Book your stay</h1>
+      <p class="book-lede">Best rate, breakfast included and free cancellation up to 7 days before arrival.</p>
+    </header>
+
+    <BookingFlow client:only="preact" roomPics={roomPics}>
+      <div slot="fallback" class="book-skeleton" aria-busy="true">
+        <p class="book-loading">Loading the calendar…</p>
+        <noscript>
+          <p class="book-noscript">
+            The booking flow needs JavaScript. You can also book on WhatsApp at {site.contact.whatsappDisplay} or by email at
+            {site.contact.email}.
+          </p>
+        </noscript>
+      </div>
+    </BookingFlow>
+  </div>
+</Base>
+
+<style>
+  .book-page {
+    padding-top: clamp(1.25rem, 3vw, 2.25rem);
+    padding-bottom: var(--space-xl);
+  }
+  .book-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .book-head h1 {
+    font-size: var(--step-4);
+  }
+  .book-lede {
+    color: var(--taupe-ink);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .book-skeleton {
+    min-height: 920px;
+    background:
+      linear-gradient(var(--hairline), var(--hairline)) 0 54px / 100% 1px no-repeat,
+      repeating-linear-gradient(90deg, var(--sand) 0 calc(14.28% - 3px), transparent calc(14.28% - 3px) 14.28%) 0 120px / 100% 48px no-repeat;
+  }
+  @media (min-width: 1024px) {
+    .book-skeleton {
+      min-height: 760px;
+    }
+  }
+  .book-loading,
+  .book-noscript {
+    padding: 1rem 0;
+    color: var(--stone-text);
+  }
+</style>

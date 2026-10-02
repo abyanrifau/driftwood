@@ -1,0 +1,491 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Photo from '../../components/Photo.astro';
+import FaqList from '../../components/FaqList.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import BookBar from '../../components/islands/BookBar';
+import { rooms, roomDetailLine, type Room } from '../../data/rooms';
+import { seasons } from '../../data/seasons';
+import { faqs } from '../../data/faq';
+import { site, whatsappLink } from '../../data/site';
+import { fees } from '../../data/fees';
+import { creditByKey } from '../../data/credits';
+import { artDirected, picData } from '../../lib/images';
+import { breadcrumbs, hotelRoom } from '../../lib/schema';
+import { bookUrl } from '../../lib/booking';
+import { toISO } from '../../lib/dates';
+
+export function getStaticPaths() {
+  return rooms.map((room) => ({ params: { slug: room.slug }, props: { room } }));
+}
+
+interface Props {
+  room: Room;
+}
+const { room } = Astro.props;
+const others = rooms.filter((r) => r.slug !== room.slug);
+const roomFaqs = faqs.filter((f) => f.rooms);
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Rooms', path: '/rooms/' },
+  { name: room.name, path: `/rooms/${room.slug}/` },
+];
+
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const md = (s: string) => `${Number(s.slice(3))} ${months[Number(s.slice(0, 2)) - 1]}`;
+const seasonRows = [...seasons]
+  .sort((a, b) => a.tier - b.tier)
+  .map((s) => ({ season: s, dates: s.ranges.map((r) => `${md(r.from)} to ${md(r.to)}`).join(', '), rate: Math.round(room.fromPrice * s.multiplier) }));
+
+// The opening photo is the room's widest, calmest frame; the rest form the gallery.
+const heroIndex: Record<string, number> = { 'beachfront-room': 1 };
+const hi = heroIndex[room.slug] ?? 0;
+const heroPhoto = room.photos[hi];
+const gallery = room.photos.filter((_, i) => i !== hi).map((p) => {
+  const [w, h] = creditByKey(p.key)?.source ?? [3, 2];
+  return { ...p, upright: h > w };
+});
+const hero = await artDirected(heroPhoto.key, heroPhoto.alt, {
+  aspect: 16 / 9,
+  mobileAspect: 4 / 5,
+  widths: [960, 1280, 1600, 2000, 2400],
+  mobileWidths: [480, 750, 1080],
+  quality: { avif: 40, webp: 58 },
+  mobileQuality: { avif: 34, webp: 54 },
+});
+const schemaImages = await Promise.all(
+  room.photos.slice(0, 3).map(async (p) => new URL((await picData(p.key, p.alt, { widths: [1200], aspect: 3 / 2 })).src, Astro.site).href),
+);
+const schema = [hotelRoom(Astro.site!, room, schemaImages), breadcrumbs(Astro.site!, trail)];
+const today = toISO(new Date());
+// Under 155 characters, never cut mid-sentence.
+const description = [`${room.summary} From $${room.fromPrice} a night, breakfast included.`, `${room.summary} From $${room.fromPrice} a night.`, room.summary].find((d) => d.length < 155)!;
+---
+
+<Base
+  title={`${room.name} at Driftwood, Maafushi: from $${room.fromPrice}`}
+  description={description}
+  og={`room-${room.slug}`}
+  schema={schema}
+  preloadImages={[
+    { srcset: hero.mobile.avif, sizes: '100vw', type: 'image/avif', media: hero.media },
+    { srcset: hero.desktop.avif, sizes: '100vw', type: 'image/avif', media: '(min-width: 768px)' },
+  ]}
+  mobileBar={{ price: room.fromPrice, href: bookUrl({ room: room.slug }), ctaLabel: `Book now: ${room.name}` }}
+>
+  <figure class="room-hero" transition:name={`room-${room.slug}`}>
+    <picture>
+      <source type="image/avif" media={hero.media} srcset={hero.mobile.avif} sizes="100vw" />
+      <source type="image/webp" media={hero.media} srcset={hero.mobile.webp} sizes="100vw" />
+      <source type="image/avif" srcset={hero.desktop.avif} sizes="100vw" />
+      <source type="image/webp" srcset={hero.desktop.webp} sizes="100vw" />
+      <img src={hero.desktop.src} alt={heroPhoto.alt} width={hero.desktop.width} height={hero.desktop.height} fetchpriority="high" loading="eager" decoding="async" style={`--focus:${hero.desktop.focus}`} />
+    </picture>
+  </figure>
+
+  <div class="container room-top">
+    <Breadcrumbs trail={trail} />
+    <div class="room-title">
+      <div class="room-title-text">
+        <p class="eyebrow">{room.count} rooms like this · {room.floor}</p>
+        <h1>{room.name}</h1>
+        <p class="meta">{roomDetailLine(room)}</p>
+      </div>
+      <div class="room-title-buy">
+        <p class="price-line">From ${room.fromPrice} per night</p>
+        <a class="btn" href={bookUrl({ room: room.slug })} data-astro-reload data-booking-start aria-label={`Book the ${room.name}`}>Book</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="container room-gallery" aria-label={`Photos of the ${room.name}`}>
+    {
+      gallery.map((p, i) => (
+        <figure class:list={['g-item', `g-item--${i + 1}`, { 'g-item--upright': p.upright }]}>
+          <div class="frame" data-reveal-img>
+            <Photo
+              name={p.key}
+              alt={p.alt}
+              aspect={p.upright ? 4 / 5 : 3 / 2}
+              widths={[480, 750, 960, 1280]}
+              sizes={i % 3 === 0 ? '(min-width: 900px) 58vw, 100vw' : '(min-width: 900px) 40vw, 100vw'}
+            />
+          </div>
+          <figcaption class="caption">{p.caption}</figcaption>
+        </figure>
+      ))
+    }
+  </section>
+
+  <div class="container room-layout">
+    <div class="room-main">
+      <div class="room-desc" data-reveal>
+        <p class="intro room-summary">{room.summary}</p>
+        <div class="body-copy stack">
+          {room.description.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+
+      <dl class="room-facts">
+        <div><dt>Size</dt><dd>{room.sizeM2} m²</dd></div>
+        <div><dt>Bed</dt><dd>{room.bed}</dd></div>
+        <div><dt>Sleeps</dt><dd>{room.sleepsLabel}</dd></div>
+        <div><dt>View</dt><dd>{room.view}</dd></div>
+        <div><dt>Outdoors</dt><dd>{room.outdoorSpace}</dd></div>
+        <div><dt>Breakfast</dt><dd>Included</dd></div>
+      </dl>
+
+      <section aria-labelledby="amenities-title" class="room-block">
+        <h2 id="amenities-title" class="label">In the room</h2>
+        <ul role="list" class="amenities">
+          {room.amenities.map((a) => <li>{a}</li>)}
+        </ul>
+      </section>
+
+      <section aria-labelledby="prices-title" class="room-block">
+        <h2 id="prices-title" class="label">Rates by season</h2>
+        <table class="season-table">
+          <caption class="visually-hidden">Nightly rate for the {room.name} by season, in US dollars, before taxes</caption>
+          <thead>
+            <tr><th scope="col">Season</th><th scope="col">Dates</th><th scope="col">Per night</th></tr>
+          </thead>
+          <tbody>
+            {
+              seasonRows.map(({ season, dates, rate }) => (
+                <tr>
+                  <th scope="row"><span class:list={['dot', `s${season.tier}`]} aria-hidden="true" />{season.label}</th>
+                  <td>{dates}</td>
+                  <td class="tnum">${rate}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+        <p class="small muted">
+          Rates include breakfast. {fees.serviceCharge.label} {fees.serviceCharge.rate * 100}%, {fees.gst.label} {fees.gst.rate * 100}% and {fees.greenTax.label} ${fees.greenTax.perGuestPerNight} per guest per night are shown separately in the quote. {fees.note}
+        </p>
+        <a class="text-link" href="/rooms/#calendar">Rates for every date</a>
+      </section>
+    </div>
+
+    <aside class="room-aside" aria-labelledby="panel-title">
+      <div class="book-panel">
+        <h2 id="panel-title" class="book-panel-title">Check availability</h2>
+        <p class="price-line">From ${room.fromPrice} per night, breakfast included</p>
+        <BookBar client:visible variant="panel" today={today} room={room.slug} maxGuests={room.maxGuests} id="room" submitLabel="Check availability" />
+        <ul role="list" class="panel-perks">
+          <li>{site.policies.cancellation}</li>
+          <li>Best rate when you book here</li>
+          <li>Check-in from {site.policies.checkInLabel}, check-out by {site.policies.checkOutLabel}</li>
+        </ul>
+        <a class="wa-link" href={whatsappLink(`Hello Driftwood, a question about the ${room.name}:`)}>Questions about this room: WhatsApp</a>
+      </div>
+    </aside>
+  </div>
+
+  <section class="section section--ivory cv" aria-labelledby="others-title">
+    <div class="container">
+      <SectionHead eyebrow="Other rooms" title="Also at Driftwood" id="others-title" />
+      <ul role="list" class="others">
+        {
+          others.map((r, i) => (
+            <li class="other" data-reveal style={`--reveal-delay:${i * 0.12}s`}>
+              <a class="other-link" href={`/rooms/${r.slug}/`}>
+                <span class="frame zoom other-img">
+                  <Photo name={r.photos[0].key} alt="" aspect={4 / 5} widths={[360, 560, 760]} sizes="(min-width: 700px) 30vw, 100vw" />
+                </span>
+                <span class="other-name">{r.name}</span>
+              </a>
+              <p class="meta">{roomDetailLine(r)}</p>
+              <p class="price-line">From ${r.fromPrice} per night</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section cv" aria-labelledby="room-faq-title">
+    <div class="container container--narrow">
+      <SectionHead eyebrow="Questions" title="About the rooms" id="room-faq-title" />
+      <FaqList items={roomFaqs} />
+      <p class="room-faq-more"><a class="text-link" href="/faq/">All questions</a></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .room-hero {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--sand);
+  }
+  @media (min-width: 768px) {
+    .room-hero {
+      aspect-ratio: auto;
+      height: min(80vh, 56.25vw);
+      min-height: 420px;
+    }
+  }
+  .room-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Wide screens crop the 16:9 frame further; keep the room's focal point */
+  @media (min-width: 768px) {
+    .room-hero img {
+      object-position: var(--focus, 50% 50%);
+    }
+  }
+
+  .room-top {
+    padding-top: 0.75rem;
+  }
+  .room-title {
+    display: grid;
+    gap: 1.75rem;
+    padding-block: clamp(1.5rem, 4vw, 3.5rem) var(--space-2xl);
+  }
+  .room-title-text {
+    display: grid;
+    gap: 1rem;
+  }
+  .room-title h1 {
+    font-size: var(--step-5);
+  }
+  .room-title-buy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+  }
+  @media (min-width: 900px) {
+    .room-title {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+    }
+  }
+
+  /* Editorial gallery: mixed sizes, offset */
+  .room-gallery {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media (min-width: 900px) {
+    .room-gallery {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+      row-gap: var(--space-2xl);
+      align-items: start;
+    }
+    .g-item--1 {
+      grid-column: 1 / span 7;
+    }
+    .g-item--2 {
+      grid-column: 9 / span 4;
+      margin-top: 9rem;
+    }
+    .g-item--3 {
+      grid-column: 2 / span 4;
+    }
+    .g-item--4 {
+      grid-column: 7 / span 6;
+      margin-top: 6rem;
+    }
+    .g-item--1.g-item--upright {
+      grid-column: 2 / span 5;
+    }
+  }
+  @media (max-width: 899px) {
+    .g-item:nth-child(even) {
+      width: 82%;
+      margin-left: auto;
+    }
+  }
+
+  .room-layout {
+    display: grid;
+    gap: var(--space-xl);
+    padding-block: var(--space-3xl);
+  }
+  @media (min-width: 1080px) {
+    .room-layout {
+      grid-template-columns: minmax(0, 1fr) 380px;
+      column-gap: clamp(3rem, 6vw, 6rem);
+      align-items: start;
+    }
+  }
+  .room-main {
+    display: grid;
+    gap: var(--space-xl);
+    min-width: 0;
+  }
+  .room-desc {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .room-summary {
+    max-width: 30rem;
+    font-family: var(--serif);
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .room-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
+    padding-block: 1.5rem;
+    border-block: 1px solid var(--hairline);
+  }
+  @media (min-width: 700px) {
+    .room-facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .room-facts dt {
+    font-size: 0.66rem;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+  }
+  .room-facts dd {
+    margin: 0.3rem 0 0;
+  }
+  .room-block {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+  .amenities {
+    display: grid;
+    width: 100%;
+    column-gap: 2rem;
+    border-top: 1px solid var(--hairline);
+  }
+  @media (min-width: 640px) {
+    .amenities {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .amenities li {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: var(--step--1);
+  }
+  .season-table {
+    width: 100%;
+    border-top: 1px solid var(--hairline);
+    font-size: var(--step--1);
+  }
+  .season-table th,
+  .season-table td {
+    padding: 0.8rem 0.75rem 0.8rem 0;
+    text-align: left;
+    font-weight: 400;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .season-table thead th {
+    font-size: 0.66rem;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+  }
+  .season-table tbody th {
+    white-space: nowrap;
+  }
+  .season-table td:last-child {
+    text-align: right;
+    padding-right: 0;
+    font-family: var(--serif);
+    font-size: 1.2rem;
+  }
+  .dot {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    margin-right: 0.6rem;
+    vertical-align: -1px;
+    background: var(--s-bg);
+    border: 1px solid rgb(30 26 23 / 0.2);
+  }
+
+  @media (min-width: 1080px) {
+    .room-aside {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+  }
+  .book-panel {
+    display: grid;
+    gap: 1.1rem;
+    padding: 1.75rem;
+    background: var(--ivory);
+    border: 1px solid var(--hairline);
+  }
+  .book-panel-title {
+    font-size: var(--step-2);
+    font-weight: 300;
+  }
+  .book-panel .price-line {
+    margin-top: -0.5rem;
+    font-size: var(--step-0);
+  }
+  .panel-perks {
+    display: grid;
+    gap: 0.35rem;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .panel-perks li::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 1px;
+    margin-right: 0.6rem;
+    vertical-align: middle;
+    background: var(--taupe);
+  }
+
+  .others {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media (min-width: 700px) {
+    .others {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+    }
+    .other:nth-child(2) {
+      margin-top: 4rem;
+    }
+  }
+  .other {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .other-link {
+    display: grid;
+    gap: 1.1rem;
+    text-decoration: none;
+  }
+  .other-img {
+    display: block;
+  }
+  .other-name {
+    font-family: var(--serif);
+    font-size: var(--step-2);
+    font-weight: 300;
+    line-height: 1.15;
+  }
+  .other-link:hover .other-name {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .room-faq-more {
+    margin-top: 1.5rem;
+  }
+</style>

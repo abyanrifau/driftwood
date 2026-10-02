@@ -1,0 +1,154 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Photo from '../components/Photo.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { experiences } from '../data/experiences';
+import { picData } from '../lib/images';
+import { breadcrumbs, touristTrips } from '../lib/schema';
+import { bookUrl } from '../lib/booking';
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Experiences', path: '/experiences/' },
+];
+const images = Object.fromEntries(
+  await Promise.all(
+    experiences.map(async (e) => [e.slug, new URL((await picData(e.photo.key, e.photo.alt, { widths: [1200], aspect: 4 / 3 })).src, Astro.site).href]),
+  ),
+);
+const schema = [touristTrips(Astro.site!, experiences, images), breadcrumbs(Astro.site!, trail)];
+---
+
+<Base
+  title="Experiences on Maafushi: snorkeling, sandbank, dolphins"
+  description="Guided snorkeling on the house reef from $35, a sandbank picnic, a sunset dolphin cruise and a village walk. Small groups with local guides."
+  og="experiences"
+  schema={schema}
+>
+  <PageHero
+    eyebrow="Experiences"
+    title="Days out from the house"
+    lede="Four trips with local guides, in small groups and priced per person. Add them when you book, or arrange them once you are here."
+    trail={trail}
+    photo={{ key: 'boat-sunset', alt: 'A wooden boat on still water as the sun sets over the lagoon', caption: 'The lagoon, 6pm' }}
+  >
+    <ul role="list" class="exp-jump">
+      {experiences.map((e) => <li><a class="text-link" href={`#${e.slug}`}>{e.name}</a></li>)}
+    </ul>
+  </PageHero>
+
+  {
+    experiences.map((e, i) => (
+      <section class:list={['exp', { 'exp--flip': i % 2 === 1 }]} id={e.slug} aria-labelledby={`${e.slug}-title`}>
+        <div class="container exp-inner">
+          <figure class="exp-media">
+            <div class="frame" data-reveal-img>
+              <Photo
+                name={e.photo.key}
+                alt={e.photo.alt}
+                aspect={i % 2 === 1 ? 4 / 5 : 3 / 2}
+                widths={[480, 750, 1080, 1400]}
+                sizes={i % 2 === 1 ? '(min-width: 1080px) 40vw, 100vw' : '(min-width: 1080px) 56vw, 100vw'}
+              />
+            </div>
+            <figcaption class="caption">{e.photo.caption}</figcaption>
+          </figure>
+          <div class="exp-body" data-reveal>
+            <h2 id={`${e.slug}-title`}>{e.name}</h2>
+            <p class="meta">{e.detail}</p>
+            <div class="stack exp-copy">
+              {e.description.map((p) => <p>{p}</p>)}
+            </div>
+            <div class="exp-incl">
+              <h3 class="label">Included</h3>
+              <ul role="list">
+                {e.inclusions.map((x) => <li>{x}</li>)}
+              </ul>
+            </div>
+            <p class="exp-good small">{e.goodToKnow}</p>
+            <p class="price-line">${e.price} per person, before taxes</p>
+            <a class="btn" href={bookUrl({ exp: e.slug })} data-astro-reload data-booking-start aria-label={`Add to booking: ${e.name}`}>Add to booking</a>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <CtaBand
+    title="Book the room first"
+    body="Experiences can be added at any time before you arrive, or arranged at the house during your stay. Trips run daily, weather permitting."
+    photo="sandbank-wide"
+    caption="The sandbank, noon"
+  />
+</Base>
+
+<style>
+  .exp-jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.75rem;
+  }
+  .exp {
+    padding-block: var(--space-2xl);
+  }
+  .exp + .exp {
+    padding-top: 0;
+  }
+  .exp-inner {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 1080px) {
+    .exp-inner {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+      align-items: end;
+    }
+    .exp-media {
+      grid-column: 1 / span 7;
+    }
+    .exp-body {
+      grid-column: 9 / span 4;
+    }
+    .exp--flip .exp-inner {
+      align-items: center;
+    }
+    .exp--flip .exp-media {
+      grid-column: 7 / span 5;
+      grid-row: 1;
+    }
+    .exp--flip .exp-body {
+      grid-column: 1 / span 5;
+      grid-row: 1;
+    }
+  }
+  .exp-body {
+    display: grid;
+    gap: 1.1rem;
+    justify-items: start;
+    max-width: 30rem;
+  }
+  .exp-body h2 {
+    font-size: var(--step-3);
+  }
+  .exp-copy {
+    color: var(--ink-soft);
+  }
+  .exp-incl {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .exp-incl ul {
+    border-top: 1px solid var(--hairline);
+  }
+  .exp-incl li {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--hairline);
+    font-size: var(--step--1);
+  }
+  .exp-good {
+    color: var(--taupe-ink);
+  }
+</style>

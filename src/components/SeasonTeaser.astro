@@ -1,0 +1,118 @@
+---
+/**
+ * Home page teaser for the seasonal calendar: twelve months as a static
+ * colour strip, no JavaScript. Links to the full calendar on /rooms/.
+ */
+import { rooms, lowestPrice } from '../data/rooms';
+import { seasons } from '../data/seasons';
+import { addMonths, firstOfMonth, fmtMonthShort, monthWeeks, toISO } from '../lib/dates';
+import { seasonFor, rateFor } from '../lib/pricing';
+
+const start = firstOfMonth(toISO(new Date()));
+const room = rooms[0];
+const months = Array.from({ length: 12 }, (_, i) => {
+  const m = addMonths(start, i);
+  const days = monthWeeks(m).flat().filter(Boolean) as string[];
+  const tiers = days.map((d) => seasonFor(d).tier);
+  const counts = [0, 0, 0, 0];
+  tiers.forEach((t) => counts[t]++);
+  const main = counts.indexOf(Math.max(...counts));
+  const top = Math.max(...tiers);
+  const from = Math.min(...days.map((d) => rateFor(room.fromPrice, d)));
+  return { iso: m, label: fmtMonthShort(m), main, top, from, year: m.slice(0, 4) };
+});
+const legend = [...seasons].sort((a, b) => a.tier - b.tier);
+---
+
+<div class="teaser" data-reveal>
+  <ol role="list" class="teaser-months" aria-label={`Lowest ${room.name} rate by month, starting ${months[0].label} ${months[0].year}`}>
+    {
+      months.map((m) => (
+        <li class:list={['teaser-month', `s${m.main}`]}>
+          <span class="teaser-bar" aria-hidden="true">
+            {m.top > m.main && <span class:list={['teaser-peak', `s${m.top}`]} />}
+          </span>
+          <span class="teaser-label">{m.label}</span>
+          <span class="teaser-price tnum">${m.from}</span>
+          <span class="visually-hidden">
+            , {seasons.find((s) => s.tier === m.main)?.label}
+            {m.top > m.main ? ` with some ${seasons.find((s) => s.tier === m.top)?.label.toLowerCase()} weeks` : ''}
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+  <ul role="list" class="teaser-legend">
+    {legend.map((s) => <li class={`s${s.tier}`}><span class="swatch" aria-hidden="true" />{s.label} ×{s.multiplier.toFixed(2)}</li>)}
+  </ul>
+  <p class="teaser-note muted small">Lowest nightly rate for a {room.name} each month, before taxes. Every room follows the same seasons, from ${lowestPrice}.</p>
+</div>
+
+<style>
+  .teaser {
+    display: grid;
+    gap: 1rem;
+  }
+  .teaser-months {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.75rem 2px;
+    padding: 0;
+  }
+  @media (min-width: 768px) {
+    .teaser-months {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+  }
+  .teaser-month {
+    display: grid;
+    gap: 0.3rem;
+    text-align: center;
+  }
+  .teaser-bar {
+    position: relative;
+    display: block;
+    height: 72px;
+    background: var(--s-bg);
+    border: 1px solid var(--hairline);
+    overflow: hidden;
+  }
+  .teaser-peak {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 35%;
+    background: var(--s-bg);
+  }
+  .teaser-label {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .teaser-price {
+    font-size: 0.8rem;
+    color: var(--taupe-ink);
+  }
+  .teaser-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .teaser-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .swatch {
+    width: 14px;
+    height: 14px;
+    background: var(--s-bg);
+    border: 1px solid rgb(30 26 23 / 0.18);
+  }
+</style>

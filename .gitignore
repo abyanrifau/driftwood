@@ -1,0 +1,27 @@
+# build output
+dist/
+.vercel/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# source caches for the photo and font scripts
+.cache/
+
+# logs
+npm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# local test reports
+/reports/
+
+# macOS / editors
+.DS_Store
+.vscode/*
+!.vscode/extensions.json

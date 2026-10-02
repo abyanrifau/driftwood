@@ -1,0 +1,50 @@
+---
+interface Props {
+  trail: { name: string; path: string }[];
+}
+const { trail } = Astro.props;
+---
+
+<nav class="crumbs" aria-label="Breadcrumb">
+  <ol role="list">
+    {
+      trail.map((t, i) => (
+        <li>
+          {i < trail.length - 1 ? <a href={t.path}>{t.name}</a> : <span aria-current="page">{t.name}</span>}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    font-size: 0.66rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.5rem;
+    margin-left: 0.25rem;
+  }
+  .crumbs a {
+    display: inline-block;
+    padding-block: 0.6rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  .crumbs a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.4em;
+  }
+  .crumbs span {
+    display: inline-block;
+    padding-block: 0.6rem;
+  }
+</style>

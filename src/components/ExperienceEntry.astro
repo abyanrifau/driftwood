@@ -1,0 +1,62 @@
+---
+/** An experience in a lookbook grid: photo and caption, name, one detail line, price, Add to booking. */
+import Photo from './Photo.astro';
+import type { Experience } from '../data/experiences';
+import { bookUrl } from '../lib/booking';
+
+interface Props {
+  experience: Experience;
+  /** Upright or landscape frame, to vary the rhythm of the grid */
+  shape?: 'tall' | 'wide';
+  level?: 2 | 3;
+  delay?: number;
+}
+
+const { experience: e, shape = 'wide', level = 3, delay = 0 } = Astro.props;
+const Tag = `h${level}` as 'h2' | 'h3';
+---
+
+<article class:list={['entry', `entry--${shape}`]} aria-labelledby={`entry-${e.slug}`} data-reveal style={`--reveal-delay:${delay}s`}>
+  <div class="entry-img frame zoom" data-reveal-img>
+    <Photo
+      name={e.photo.key}
+      alt={e.photo.alt}
+      aspect={shape === 'tall' ? 4 / 5 : 3 / 2}
+      widths={[480, 750, 960, 1200]}
+      sizes="(min-width: 900px) 42vw, 100vw"
+    />
+  </div>
+  <p class="caption">{e.photo.caption}</p>
+  <Tag class="entry-name" id={`entry-${e.slug}`}>{e.name}</Tag>
+  <p class="meta">{e.detail}</p>
+  <p class="entry-line">{e.line}</p>
+  <p class="price-line">${e.price} per person</p>
+  <a class="btn btn--small btn--secondary" href={bookUrl({ exp: e.slug })} data-astro-reload data-booking-start aria-label={`Add to booking: ${e.name}`}>Add to booking</a>
+</article>
+
+<style>
+  .entry {
+    display: grid;
+    gap: 0.75rem;
+    justify-items: start;
+    align-content: start;
+  }
+  .entry-img {
+    width: 100%;
+  }
+  .entry-img + .caption {
+    margin-top: 0;
+  }
+  .entry-name {
+    margin-top: 0.75rem;
+    font-size: var(--step-2);
+    font-weight: 300;
+  }
+  .entry-line {
+    max-width: 30rem;
+    color: var(--ink-soft);
+  }
+  .entry .btn {
+    margin-top: 0.5rem;
+  }
+</style>

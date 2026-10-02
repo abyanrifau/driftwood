@@ -1,0 +1,59 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { breadcrumbs } from '../lib/schema';
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Privacy', path: '/privacy/' },
+];
+---
+
+<Base
+  title="Privacy | Driftwood, a Nuit Works concept"
+  description="Driftwood is a concept site. No data is stored or sent: no bookings, no payments, no tracking, no cookies and no third-party scripts."
+  og="privacy"
+  schema={[breadcrumbs(Astro.site!, trail)]}
+>
+  <PageHero eyebrow="Privacy" title="Privacy" lede="This is a concept site by Nuit Works. Nothing you enter here leaves your browser." trail={trail} />
+
+  <div class="container container--narrow prose stack">
+    <h2>What happens to your data</h2>
+    <p>
+      Nothing is stored on a server or sent anywhere. The booking flow and the enquiry form work entirely in your browser. No booking is made,
+      no payment is taken and no email or message is sent.
+    </p>
+    <p>
+      While you use the booking flow, your choices are kept in your browser’s session storage so that a refresh keeps your progress. Session
+      storage is cleared when you close the tab. You can also clear it at any time by starting a new booking.
+    </p>
+    <h2>No tracking</h2>
+    <p>
+      There are no cookies, no analytics, no advertising pixels, no chat widgets, no embedded maps and no other third-party scripts. Fonts and
+      photos are served from this site.
+    </p>
+    <h2>Links that leave this site</h2>
+    <p>
+      WhatsApp, email and Instagram links open those services, which have their own privacy policies. The WhatsApp number and email address
+      are placeholders for this concept.
+    </p>
+    <h2>Who made this</h2>
+    <p>
+      Driftwood is a fictional business, designed and built by <a href="https://nuit.works">Nuit Works</a> as a website concept.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .prose {
+    padding-bottom: var(--space-2xl);
+    max-width: calc(44rem + var(--gutter) * 2);
+  }
+  .prose h2 {
+    font-size: var(--step-2);
+    margin-top: 2rem;
+  }
+  .prose p {
+    color: var(--ink-soft);
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileBar from '../components/MobileBar.astro';
+import { site } from '../data/site';
+import { jsonLdString, type JsonLd } from '../lib/schema';
+import '../styles/global.css';
+
+export interface PreloadImage {
+  srcset: string;
+  sizes: string;
+  type: string;
+  media?: string;
+}
+
+interface Props {
+  /** Full page title, under 60 characters */
+  title: string;
+  /** Meta description, under 155 characters */
+  description: string;
+  /** Key of the generated OG image in /og/ */
+  og: string;
+  schema?: JsonLd[];
+  /** Transparent header over a full-bleed hero (Home) */
+  overlayHeader?: boolean;
+  /** The booking flow hides the mobile bar and runs without the client router */
+  bookingFlow?: boolean;
+  mobileBar?: { price?: number; href?: string; cta?: string; ctaLabel?: string; startHidden?: boolean };
+  preloadImages?: PreloadImage[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  og,
+  schema = [],
+  overlayHeader = false,
+  bookingFlow = false,
+  mobileBar,
+  preloadImages = [],
+  noindex = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(`/og/${og}.jpg`, Astro.site).href;
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content={site.themeColor} />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+
+    {/* Only the weights that appear above the fold are preloaded */}
+    <Font cssVariable="--font-serif" preload={[{ weight: '300', style: 'normal' }]} />
+    <Font cssVariable="--font-sans" preload={[{ weight: '300', style: 'normal' }, { weight: '400', style: 'normal' }]} />
+    {
+      preloadImages.map((p) => (
+        <link rel="preload" as="image" imagesrcset={p.srcset} imagesizes={p.sizes} type={p.type} media={p.media} fetchpriority="high" />
+      ))
+    }
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title}. Driftwood, a fictional guesthouse on Maafushi, Maldives.`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {schema.map((s) => <script type="application/ld+json" set:html={jsonLdString(s)} />)}
+
+    {!bookingFlow && <ClientRouter />}
+  </head>
+  <body class:list={{ 'is-booking': bookingFlow }}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header overlay={overlayHeader} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    {!bookingFlow && <MobileBar {...mobileBar} />}
+    <script>
+      import '../scripts/site.ts';
+    </script>
+  </body>
+</html>
+
+<style>
+  main {
+    display: block;
+  }
+  main:focus {
+    outline: none;
+  }
+</style>

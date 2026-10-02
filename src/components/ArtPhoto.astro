@@ -1,0 +1,38 @@
+---
+/**
+ * A full-bleed or hero photo with art direction: phones get their own
+ * composed crop (and optionally their own upright photo of the same scene),
+ * larger screens a wide one. One <picture>, two pairs of AVIF/WebP sources.
+ */
+import { artDirected, type ArtOptions } from '../lib/images';
+
+interface Props extends ArtOptions {
+  name: string;
+  alt: string;
+  priority?: boolean;
+  /** Media query that selects the phone crop. Defaults to below 768px. */
+  media?: string;
+  class?: string;
+}
+
+const { name, alt, priority = false, media: mediaOverride, class: className, ...opts } = Astro.props;
+const art = await artDirected(name, alt, opts);
+const media = mediaOverride ?? art.media;
+const { desktop, mobile } = art;
+---
+
+<picture class={className}>
+  <source type="image/avif" media={media} srcset={mobile.avif} sizes={mobile.sizes} />
+  <source type="image/webp" media={media} srcset={mobile.webp} sizes={mobile.sizes} />
+  <source type="image/avif" srcset={desktop.avif} sizes={desktop.sizes} />
+  <source type="image/webp" srcset={desktop.webp} sizes={desktop.sizes} />
+  <img
+    src={desktop.src}
+    alt={alt}
+    width={desktop.width}
+    height={desktop.height}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding="async"
+    fetchpriority={priority ? 'high' : undefined}
+  />
+</picture>

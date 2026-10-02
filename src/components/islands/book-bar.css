@@ -1,0 +1,187 @@
+/* The quick booking form: a flat, full-width bar under the Home hero, and
+   a stacked panel on room pages. Hairlines, square corners, small caps. */
+
+.bb {
+  position: relative;
+  color: var(--ink);
+}
+.bb-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--hairline);
+  border-left: 1px solid var(--hairline);
+}
+.bb-field {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: 0.2rem;
+  min-height: 72px;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-right: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  background: var(--ivory);
+  text-align: left;
+  color: inherit;
+}
+button.bb-field {
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+button.bb-field:hover,
+.bb-field.is-active {
+  background: var(--cream);
+}
+.bb-field.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--ink);
+}
+.bb-field:focus-visible {
+  outline-offset: -2px;
+}
+.bb-label {
+  font-size: 0.66rem;
+  font-weight: 400;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--taupe-ink);
+}
+.bb-value {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.bb-value.is-empty {
+  color: var(--ink-soft);
+}
+.bb-select select {
+  width: 100%;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 1.6rem 0 0;
+  border: 0;
+  appearance: none;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M.5.5l5 5 5-5' fill='none' stroke='%231E1A17' stroke-width='1'/%3E%3C/svg%3E") no-repeat right center;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  cursor: pointer;
+}
+.bb-select select:focus-visible {
+  outline-offset: 4px;
+}
+.bb-submit {
+  grid-column: 1 / -1;
+  min-height: 60px;
+  border-top: 0;
+}
+
+/* Calendar popover */
+.bb-pop {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1rem 1rem;
+  background: var(--ivory);
+  border: 1px solid var(--hairline);
+  border-top: 0;
+}
+.bb-pop-head,
+.bb-pop-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.bb-pop-title {
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.bb-pop-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+.bb-month {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--control-line);
+  background: transparent;
+  font-size: 0.95rem;
+}
+.bb-month:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+.bb-month:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.bb-pop-foot {
+  flex-wrap: wrap;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--hairline);
+}
+.bb-pop-sum {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+.bb-pop-actions {
+  display: flex;
+  gap: 1.25rem;
+}
+.bb-text {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.72rem;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 0.45em;
+  text-decoration-color: var(--control-line);
+}
+.bb-text:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Bar variant on wider screens: one row, the calendar drops below it */
+@media (min-width: 900px) {
+  .bb--bar .bb-fields {
+    grid-template-columns: 1.15fr 1.15fr 0.75fr 0.75fr auto;
+  }
+  .bb--bar .bb-field {
+    min-height: 84px;
+    padding-inline: 1.5rem;
+  }
+  .bb--bar .bb-submit {
+    grid-column: auto;
+    min-height: 100%;
+    padding-inline: 3rem;
+    border-top: 1px solid var(--espresso);
+  }
+  .bb--bar .bb-pop {
+    position: absolute;
+    z-index: 30;
+    left: 0;
+    top: 100%;
+    width: min(760px, 100%);
+    padding: 1.5rem;
+    border-top: 1px solid var(--hairline);
+    margin-top: -1px;
+  }
+  .bb--bar .bb-pop .cal {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+}

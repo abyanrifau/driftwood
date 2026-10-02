@@ -1,0 +1,722 @@
+/* ==========================================================================
+   Driftwood design tokens and global styles.
+   A quiet lookbook: cream and ink, thin serif headlines, small tracked
+   labels, hairlines instead of boxes, square corners everywhere.
+   Component styles live next to their components (scoped Astro styles).
+   ========================================================================== */
+
+:root {
+  /* Palette */
+  --cream: #f6f2ec;
+  --ivory: #fbf9f5;
+  --ink: #1e1a17;
+  --espresso: #2b2420;
+  --taupe: #8b8178;
+  --hairline: #e3dcd2;
+  --sea: #3e6f70;
+
+  /* Derived tones */
+  --sand: #eee7dd;
+  --ink-soft: #3d3631;
+  /* Taupe darkened just enough for small text to pass WCAG AA on cream and ivory */
+  --taupe-ink: #675e56;
+  /* Form controls need a visible edge (WCAG 1.4.11) */
+  --control-line: #b4a99c;
+  --error: #9e2a2b;
+
+  /* Older names, kept so every component reads from the same palette */
+  --stone-text: var(--taupe-ink);
+  --timber: var(--taupe-ink);
+  --line: var(--hairline);
+  --line-strong: #cdc3b6;
+  --cta: var(--espresso);
+  --cta-ink: var(--cream);
+
+  /* Season scale, cheapest to busiest: ivory, sand, taupe. Lightness steps
+     keep it readable without colour vision; ink text passes AA on all four. */
+  --season-0: #fbf9f5;
+  --season-1: #ece4d8;
+  --season-2: #d8ccbc;
+  --season-3: #b8aa99;
+  --season-0-ink: var(--ink);
+  --season-1-ink: var(--ink);
+  --season-2-ink: var(--ink);
+  --season-3-ink: var(--ink);
+  --tint-0: #fbf9f5;
+  --tint-1: #f1ebe2;
+  --tint-2: #e6dccf;
+  --tint-3: #d6c9b9;
+
+  /* Type */
+  --serif: var(--font-serif, 'Cormorant Garamond', Garamond, Georgia, serif);
+  --sans: var(--font-sans, Jost, Futura, Arial, sans-serif);
+  --step--2: 0.72rem;
+  --step--1: clamp(0.84rem, 0.82rem + 0.1vw, 0.9rem);
+  --step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --step-1: clamp(1.15rem, 1.1rem + 0.25vw, 1.3rem);
+  --step-2: clamp(1.55rem, 1.4rem + 0.6vw, 2rem);
+  --step-3: clamp(2rem, 1.65rem + 1.4vw, 3rem);
+  --step-4: clamp(2.5rem, 1.9rem + 2.7vw, 4.5rem);
+  --step-5: clamp(2.9rem, 2rem + 4.4vw, 6.6rem);
+  --tracking: 0.18em;
+
+  /* Space */
+  --gutter: 16px;
+  --space-xs: 0.5rem;
+  --space-s: 0.75rem;
+  --space-m: 1.25rem;
+  --space-l: 2rem;
+  --space-xl: clamp(3rem, 2.4rem + 3vw, 5rem);
+  --space-2xl: clamp(5rem, 3.6rem + 6vw, 9rem);
+  --space-3xl: clamp(6.5rem, 4rem + 9vw, 13rem);
+  --max: 1320px;
+  /* About 36 characters of intro text, about 66 of body text */
+  --measure-intro: 21rem;
+  --measure: 36rem;
+  --max-text: var(--measure);
+
+  /* Shape and motion */
+  --radius-s: 0;
+  --radius: 0;
+  --radius-l: 0;
+  --shadow-1: none;
+  --shadow-2: none;
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 0.7s;
+  --header-h: 64px;
+  --bar-h: 0px;
+
+  color-scheme: light;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 40px;
+    --header-h: 76px;
+  }
+}
+@media (min-width: 1440px) {
+  :root {
+    --gutter: 64px;
+  }
+}
+
+/* --- Reset ------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* Square everywhere. Components never set a radius; this catches the
+     browser's own rounded controls too. */
+  border-radius: 0;
+}
+* {
+  margin: 0;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+body {
+  min-height: 100vh;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+img {
+  height: auto;
+}
+/* Pictures fill boxes that have a set size (aspect-ratio frames, full-bleed
+   backgrounds) and behave normally everywhere else. */
+picture {
+  height: 100%;
+}
+picture > img {
+  height: 100%;
+  object-fit: cover;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--ink);
+  background: var(--ivory);
+  cursor: pointer;
+}
+input[type='checkbox']::before,
+input[type='radio']::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--espresso);
+  transform: scale(0);
+  transition: transform 0.2s var(--ease);
+}
+input[type='checkbox']:checked::before,
+input[type='radio']:checked::before {
+  transform: scale(1);
+}
+strong,
+b {
+  font-weight: 400;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+li,
+dd,
+dt,
+figcaption {
+  overflow-wrap: break-word;
+}
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+}
+table {
+  border-collapse: collapse;
+}
+
+/* --- Typography -------------------------------------------------------- */
+h1,
+h2,
+h3,
+.serif {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-synthesis: none;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+h1 {
+  font-size: var(--step-5);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+}
+h2 {
+  font-size: var(--step-4);
+  line-height: 1.06;
+}
+h3 {
+  font-size: var(--step-2);
+  font-weight: 400;
+  line-height: 1.15;
+}
+h4 {
+  font-family: var(--sans);
+  font-size: var(--step--2);
+  font-weight: 400;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+}
+/* One or two accent words in a headline, at most */
+h1 em,
+h2 em,
+.serif em {
+  font-style: italic;
+  font-weight: 300;
+}
+p {
+  text-wrap: pretty;
+}
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: var(--measure);
+}
+.intro {
+  max-width: var(--measure-intro);
+  font-size: var(--step-1);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.body-copy {
+  max-width: var(--measure);
+}
+/* Small tracked uppercase: labels, eyebrows, captions, meta lines */
+.eyebrow,
+.label,
+.caption,
+.meta {
+  font-family: var(--sans);
+  font-size: var(--step--2);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--taupe-ink);
+}
+.caption {
+  margin-top: 0.85rem;
+}
+.chapter-no {
+  font-variant-numeric: lining-nums;
+}
+.muted {
+  color: var(--taupe-ink);
+}
+.small {
+  font-size: var(--step--1);
+}
+.tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: var(--taupe);
+  transition:
+    color 0.3s,
+    text-decoration-color 0.3s;
+}
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* --- Focus ------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.on-dark :focus-visible,
+:focus-visible.on-dark {
+  outline-color: var(--cream);
+}
+
+/* --- Layout ------------------------------------------------------------ */
+.container {
+  width: 100%;
+  max-width: calc(var(--max) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.container--narrow {
+  max-width: calc(52rem + var(--gutter) * 2);
+}
+.section {
+  padding-block: var(--space-2xl);
+}
+.section--tight {
+  padding-block: var(--space-xl);
+}
+.section--sand {
+  background: var(--sand);
+}
+.section--ivory {
+  background: var(--ivory);
+}
+.stack > * + * {
+  margin-top: var(--stack, var(--space-m));
+}
+.section-head {
+  display: grid;
+  gap: var(--space-m);
+  margin-bottom: var(--space-xl);
+  max-width: 46rem;
+}
+.section-head .lede {
+  max-width: var(--measure);
+}
+.section-head--split {
+  max-width: none;
+}
+@media (min-width: 900px) {
+  .section-head--split {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    column-gap: var(--space-xl);
+  }
+}
+.rule {
+  height: 1px;
+  border: 0;
+  background: var(--hairline);
+}
+
+/* Below-the-fold sections skip style, layout and paint until they are
+   near the viewport. `auto` remembers the real size once rendered. */
+.cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+/* Primary: solid espresso, cream text; inverts to an outline on hover. */
+.btn {
+  --btn-bg: var(--espresso);
+  --btn-ink: var(--cream);
+  --btn-line: var(--espresso);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75em;
+  min-height: 50px;
+  padding: 0.85em 2.6em;
+  border: 1px solid var(--btn-line);
+  background: var(--btn-bg);
+  color: var(--btn-ink);
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.35s var(--ease),
+    border-color 0.35s var(--ease),
+    color 0.35s var(--ease);
+}
+.btn:hover {
+  --btn-bg: transparent;
+  --btn-ink: var(--espresso);
+}
+.btn--large {
+  min-height: 58px;
+  padding-inline: 3.2em;
+}
+.btn--small {
+  min-height: 42px;
+  padding: 0.6em 1.6em;
+  font-size: 0.72rem;
+}
+.btn--block {
+  width: 100%;
+}
+/* Secondary: transparent with a 1px ink border */
+.btn--ghost,
+.btn--secondary {
+  --btn-bg: transparent;
+  --btn-ink: var(--ink);
+  --btn-line: var(--ink);
+}
+.btn--ghost:hover,
+.btn--secondary:hover {
+  --btn-bg: var(--ink);
+  --btn-ink: var(--cream);
+}
+/* On photographs */
+.btn--light {
+  --btn-bg: var(--cream);
+  --btn-ink: var(--espresso);
+  --btn-line: var(--cream);
+}
+.btn--light:hover {
+  --btn-bg: transparent;
+  --btn-ink: var(--cream);
+}
+.btn[aria-disabled='true'],
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn svg {
+  flex: none;
+}
+
+/* Text links: small uppercase, a hairline underline at rest and an ink line
+   that draws in on hover. */
+.text-link,
+.link-arrow {
+  display: inline-block;
+  padding-bottom: 0.35em;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  background:
+    linear-gradient(currentColor, currentColor) left bottom / 0% 1px no-repeat,
+    linear-gradient(var(--control-line), var(--control-line)) left bottom / 100% 1px no-repeat;
+  transition: background-size 0.6s var(--ease-out);
+}
+.text-link:hover,
+.link-arrow:hover {
+  background-size:
+    100% 1px,
+    100% 1px;
+}
+.on-dark .text-link,
+.text-link.on-dark {
+  color: var(--cream);
+  background:
+    linear-gradient(currentColor, currentColor) left bottom / 0% 1px no-repeat,
+    linear-gradient(rgb(246 242 236 / 0.5), rgb(246 242 236 / 0.5)) left bottom / 100% 1px no-repeat;
+}
+
+/* WhatsApp secondary action: small, quiet, never louder than Book now */
+.wa-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-color: var(--control-line);
+}
+.wa-link svg {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+/* --- Price display ------------------------------------------------------ */
+.price {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.price strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.4em;
+  letter-spacing: 0;
+}
+/* "From $180 per night" as one thin line */
+.price-line {
+  font-family: var(--serif);
+  font-size: var(--step-1);
+  font-weight: 300;
+  color: var(--ink-soft);
+  font-variant-numeric: lining-nums;
+}
+
+/* --- Forms ---------------------------------------------------------------- */
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+.field label,
+.field .label {
+  font-size: var(--step--2);
+  font-weight: 400;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.field .hint {
+  font-size: var(--step--1);
+  color: var(--taupe-ink);
+}
+.input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--control-line);
+  background: var(--ivory);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 400;
+  transition: border-color 0.3s;
+}
+.input:hover {
+  border-color: var(--ink-soft);
+}
+.input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 0;
+  border-color: var(--ink);
+}
+.input[aria-invalid='true'] {
+  border-color: var(--error);
+}
+textarea.input {
+  min-height: 7rem;
+  resize: vertical;
+}
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M.5.5l5 5 5-5' fill='none' stroke='%231E1A17' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  padding-right: 2.4rem;
+}
+.field-error {
+  color: var(--error);
+  font-size: var(--step--1);
+  font-weight: 400;
+}
+
+/* --- Images --------------------------------------------------------------- */
+/* A frame with a fixed aspect ratio; the photo fills it. */
+.frame {
+  position: relative;
+  overflow: hidden;
+  background: var(--sand);
+}
+.frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Utilities ------------------------------------------------------------ */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -100px;
+  z-index: 100;
+  padding: 0.8rem 1.2rem;
+  background: var(--espresso);
+  color: var(--cream);
+  font-size: 0.78rem;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 12px;
+  color: var(--cream);
+}
+.demo-note {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--control-line);
+  background: var(--ivory);
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Season swatches, shared by calendars and legends */
+.s0 {
+  --s-bg: var(--season-0);
+  --s-ink: var(--season-0-ink);
+  --s-tint: var(--tint-0);
+}
+.s1 {
+  --s-bg: var(--season-1);
+  --s-ink: var(--season-1-ink);
+  --s-tint: var(--tint-1);
+}
+.s2 {
+  --s-bg: var(--season-2);
+  --s-ink: var(--season-2-ink);
+  --s-tint: var(--tint-2);
+}
+.s3 {
+  --s-bg: var(--season-3);
+  --s-ink: var(--season-3-ink);
+  --s-tint: var(--tint-3);
+}
+
+/* --- Motion --------------------------------------------------------------- */
+/* Slow fades on scroll. Only hidden once JS has said it will reveal them,
+   and never for anything above the fold. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+/* Photos settle from a very slight scale as they arrive */
+.js [data-reveal-img] img {
+  transform: scale(1.04);
+  transition: transform 1.4s var(--ease-out);
+}
+.js [data-reveal-img].is-in img {
+  transform: none;
+}
+
+/* Hover on lookbook images: the photo eases forward a fraction */
+.zoom img {
+  transition: transform 1.6s var(--ease-out);
+}
+@media (hover: hover) {
+  a:hover .zoom img,
+  .zoom:hover img {
+    transform: scale(1.025);
+  }
+}
+
+/* Page transitions (ClientRouter) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.22s;
+  animation-timing-function: var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  .js [data-reveal-img] img {
+    transform: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

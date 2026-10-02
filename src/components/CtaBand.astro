@@ -1,0 +1,96 @@
+---
+/** Closing booking prompt over a full-bleed photo, with honest seasonal context. */
+import ArtPhoto from './ArtPhoto.astro';
+import { seasonalUrgency } from '../data/seasons';
+import { whatsappLink } from '../data/site';
+
+interface Props {
+  title?: string;
+  body?: string;
+  href?: string;
+  cta?: string;
+  photo?: string;
+  caption?: string;
+}
+
+const {
+  title = 'Book direct',
+  body = `${seasonalUrgency.headline} Breakfast is included and cancellation is free up to 7 days before arrival.`,
+  href = '/book/',
+  cta = 'Check availability',
+  photo = 'wet-sand',
+  caption,
+} = Astro.props;
+---
+
+<section class="cta-band cv" aria-labelledby="cta-title">
+  <div class="cta-bg" aria-hidden="true" data-reveal-img>
+    <ArtPhoto name={photo} alt="" aspect={21 / 9} mobileAspect={4 / 5} widths={[1080, 1600, 2000, 2400]} mobileWidths={[480, 750, 1080]} />
+  </div>
+  <div class="container cta-inner on-dark">
+    <div class="cta-text" data-reveal>
+      {caption && <p class="label cta-caption">{caption}</p>}
+      <h2 id="cta-title">{title}</h2>
+      <p class="cta-body">{body}</p>
+      <div class="cta-actions">
+        <a class="btn btn--light" href={href} data-astro-reload data-booking-start>{cta}</a>
+        <a class="text-link on-dark" href={whatsappLink('Hello Driftwood, a question before I book:')}>Ask on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-band {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(560px, 82vh, 860px);
+    overflow: hidden;
+    color: var(--cream);
+  }
+  .cta-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .cta-bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Soft gradient at the bottom only, where the text sits */
+  .cta-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgb(30 26 23 / 0.62) 0%, rgb(30 26 23 / 0.32) 34%, rgb(30 26 23 / 0) 62%);
+  }
+  .cta-inner {
+    padding-block: var(--space-xl);
+  }
+  .cta-text {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+    max-width: 34rem;
+  }
+  .cta-caption {
+    color: rgb(246 242 236 / 0.86);
+  }
+  .cta-inner h2 {
+    font-size: var(--step-5);
+  }
+  .cta-body {
+    max-width: 30rem;
+    color: rgb(246 242 236 / 0.94);
+  }
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 2rem;
+    margin-top: 0.5rem;
+  }
+</style>

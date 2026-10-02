@@ -1,0 +1,49 @@
+---
+/** A section opening: small numbered label, a short serif headline, a few lines at most. */
+interface Props {
+  /** Chapter number on Home, shown as "01" */
+  number?: number;
+  eyebrow?: string;
+  title: string;
+  id?: string;
+  lede?: string;
+  split?: boolean;
+  level?: 2 | 3;
+}
+
+const { number, eyebrow, title, id, lede, split = false, level = 2 } = Astro.props;
+const Tag = `h${level}` as 'h2' | 'h3';
+const hasAction = Astro.slots.has('default');
+const no = number !== undefined ? String(number).padStart(2, '0') : undefined;
+---
+
+<div class:list={['section-head', { 'section-head--split': split && hasAction }]} data-reveal>
+  <div class="section-head-text">
+    {(no || eyebrow) && (
+      <p class="eyebrow">
+        {no && <span class="chapter-no">{no}</span>}
+        {no && eyebrow && <span aria-hidden="true" class="eyebrow-gap" />}
+        {eyebrow}
+      </p>
+    )}
+    <Tag id={id}>{title}</Tag>
+    {lede && <p class="lede">{lede}</p>}
+  </div>
+  {hasAction && <div class="section-head-action"><slot /></div>}
+</div>
+
+<style>
+  .section-head-text {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .eyebrow-gap {
+    display: inline-block;
+    width: 1.75rem;
+    height: 1px;
+    margin: 0 0.75rem;
+    vertical-align: middle;
+    background: currentColor;
+    opacity: 0.6;
+  }
+</style>

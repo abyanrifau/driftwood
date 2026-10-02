@@ -1,0 +1,192 @@
+/* Twelve-month seasonal calendar: square cells shaded ivory to sand to
+   taupe, hairline month frames, small-caps controls. */
+
+.sc {
+  display: grid;
+  gap: 1.75rem;
+}
+.sc-summary {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 48rem;
+  color: var(--ink-soft);
+}
+.sc-summary p::before {
+  content: '';
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 0.7em;
+  vertical-align: -1px;
+  border: 1px solid rgb(30 26 23 / 0.2);
+}
+.sc-summary p:first-child::before {
+  background: var(--season-0);
+}
+.sc-summary p:last-child::before {
+  background: var(--season-3);
+}
+.sc-controls {
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 1080px) {
+  .sc-controls {
+    grid-template-columns: auto 1fr;
+    align-items: end;
+    gap: 2rem;
+  }
+  .sc-controls .cal-legend {
+    justify-content: flex-end;
+  }
+}
+.sc-rooms {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.sc-legend-title {
+  margin-bottom: 0.6rem;
+  font-size: 0.66rem;
+  font-weight: 400;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--taupe-ink);
+}
+
+/* Segmented control: square, hairline */
+.seg {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+}
+.seg-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.45rem 1.1rem;
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  background: transparent;
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+.seg-option input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  cursor: pointer;
+}
+.seg-option:hover {
+  background: var(--cream);
+}
+.seg-option.is-on {
+  background: var(--espresso);
+  color: var(--cream);
+}
+.seg-option:has(input:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  z-index: 1;
+}
+
+/* Months: swipeable row on phones, a grid on larger screens */
+.sc-scroll-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--taupe-ink);
+}
+.sc-arrow {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--control-line);
+  background: transparent;
+  font-size: 0.95rem;
+}
+.sc-months {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  scroll-padding-inline: var(--gutter);
+}
+.sc-months .cal {
+  grid-auto-flow: column;
+  grid-auto-columns: min(86%, 340px);
+  gap: 1.25rem;
+  padding-bottom: 0.5rem;
+}
+.sc-months .cal-month {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 330px;
+  scroll-snap-align: start;
+  padding: 1rem 1rem 0.75rem;
+  background: var(--ivory);
+  border: 1px solid var(--hairline);
+}
+@media (min-width: 900px) {
+  .sc-scroll-nav {
+    display: none;
+  }
+  .sc-months {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+  .sc-months .cal {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1200px) {
+  .sc-months .cal {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.sc-months .cal-caption {
+  font-size: var(--step-1);
+  font-weight: 400;
+}
+
+.sc-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 88px;
+  padding: 1.1rem 0;
+  border-block: 1px solid var(--ink);
+}
+.sc-result-text {
+  display: grid;
+  gap: 0.2rem;
+}
+.sc-result-text strong {
+  font-family: var(--serif);
+  font-size: var(--step-2);
+  font-weight: 300;
+}
+.sc-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}

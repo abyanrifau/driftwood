@@ -1,0 +1,85 @@
+---
+/**
+ * Phones only: a sticky bottom bar with the "from" price and Book now.
+ * Not rendered inside the booking flow. On Home it steps aside while the
+ * booking bar under the hero is on screen.
+ */
+import { lowestPrice } from '../data/rooms';
+
+interface Props {
+  price?: number;
+  href?: string;
+  cta?: string;
+  /** Accessible name for the action, when the visible label needs context */
+  ctaLabel?: string;
+  /** Start hidden; the script reveals it once the booking bar scrolls away */
+  startHidden?: boolean;
+}
+const { price = lowestPrice, href = '/book/', cta = 'Book now', ctaLabel, startHidden = false } = Astro.props;
+---
+
+<aside class:list={['mobile-bar', { 'is-hidden': startHidden }]} aria-label="Quick booking" data-mobile-bar>
+  <p class="mobile-bar-price">
+    <span class="mobile-bar-from">From</span>
+    <span class="mobile-bar-amount">${price}</span>
+    <span class="mobile-bar-per">per night</span>
+  </p>
+  <a class="btn mobile-bar-cta" href={href} data-astro-reload data-booking-start aria-label={ctaLabel}>{cta}</a>
+</aside>
+
+<style>
+  .mobile-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 66px;
+    padding: 0.55rem var(--gutter) calc(0.55rem + env(safe-area-inset-bottom));
+    background: var(--ivory);
+    border-top: 1px solid var(--hairline);
+    transition: transform 0.6s var(--ease-out);
+  }
+  .mobile-bar.is-hidden {
+    transform: translateY(110%);
+  }
+  .mobile-bar-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-variant-numeric: lining-nums tabular-nums;
+    line-height: 1.2;
+  }
+  .mobile-bar-from,
+  .mobile-bar-per {
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+  }
+  .mobile-bar-amount {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 400;
+  }
+  .mobile-bar-cta {
+    flex: none;
+    min-height: 48px;
+    padding-inline: 1.6rem;
+  }
+  @media (min-width: 768px) {
+    .mobile-bar {
+      display: none;
+    }
+  }
+  @media (max-width: 767.98px) {
+    :global(body:has(.mobile-bar)) {
+      --bar-h: 66px;
+    }
+  }
+</style>

@@ -1,0 +1,209 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import IslandMap from '../components/IslandMap.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { transfers, transfersNote } from '../data/transfers';
+import { site, whatsappLink } from '../data/site';
+import { breadcrumbs } from '../lib/schema';
+import { bookUrl } from '../lib/booking';
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'Getting here', path: '/getting-here/' },
+];
+
+const tips = [
+  { title: 'Before you fly', body: 'Complete the Maldives online traveller declaration within 96 hours of departure, and keep your Driftwood booking reference to hand for immigration.' },
+  { title: 'At the airport', body: 'Velana International Airport is on its own island. The speedboat jetty is a short walk from arrivals; follow the signs for boat transfers.' },
+  { title: 'Late arrivals', body: 'Shared speedboats stop at around 6pm. If you land later, book the private speedboat, or stay a night near the airport and take the morning boat.' },
+  { title: 'On arrival', body: 'We meet every boat at Maafushi jetty with a trolley for your luggage. The house is a five-minute walk along a sand street.' },
+  { title: 'Money', body: 'Cards are accepted at Driftwood and in most cafés. US dollars in small notes are useful for tea shops and tips.' },
+  { title: 'What to wear', body: 'Cover shoulders and knees on the jetty and in the village. Swimwear is fine on the bikini beach, the sandbank and boat trips.' },
+];
+---
+
+<Base
+  title="Getting to Maafushi from Malé airport | Driftwood"
+  description="Shared speedboat about 40 minutes and $30, private speedboat about 30 minutes, public ferry about 1.5 hours. Compare transfers to Maafushi and book one."
+  og="getting-here"
+  schema={[breadcrumbs(Astro.site!, trail)]}
+>
+  <PageHero
+    eyebrow="Getting here"
+    title="From the airport to Maafushi"
+    lede={`Driftwood is on Maafushi in Kaafu Atoll, about 27 km south of ${site.location.airport}. Most guests reach the house within an hour of landing.`}
+    trail={trail}
+    photo={{ key: 'speedboat', alt: 'A speedboat crossing open water towards a palm-covered island', caption: 'Shared speedboat, Velana to Maafushi' }}
+  />
+
+  <section class="section" aria-labelledby="compare-title">
+    <div class="container">
+      <SectionHead eyebrow="Transfers" title="Three ways across" id="compare-title" lede={transfersNote} />
+      <ul role="list" class="transfers">
+        {
+          transfers.map((t, i) => (
+            <li class="transfer" data-reveal style={`--reveal-delay:${i * 0.12}s`}>
+              <p class="meta">{t.id === 'shared' ? 'Most guests' : t.id === 'private' ? 'Any time' : 'From Malé'}</p>
+              <h3>{t.name}</h3>
+              <dl>
+                <div><dt>Crossing</dt><dd>{t.crossing}</dd></div>
+                <div><dt>Price</dt><dd>{t.priceLabel}</dd></div>
+                <div><dt>Departures</dt><dd>{t.schedule}</dd></div>
+                <div><dt>Suits</dt><dd>{t.bestFor}</dd></div>
+              </dl>
+              <ul role="list" class="transfer-notes">
+                {t.notes.map((n) => <li>{n}</li>)}
+              </ul>
+              {
+                t.bookable ? (
+                  <a class="btn btn--small btn--secondary" href={bookUrl({ transfer: t.id as 'shared' | 'private' })} data-astro-reload data-booking-start aria-label={`Book now with the ${t.name.toLowerCase()}`}>
+                    Book now
+                  </a>
+                ) : (
+                  <p class="transfer-self small">Booked on the day at the Malé ferry terminal. We send the timetable before you travel.</p>
+                )
+              }
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--ivory" aria-labelledby="gh-map-title">
+    <div class="container">
+      <SectionHead eyebrow="The island" title="Where the boats come in" id="gh-map-title" lede="The jetty is on the harbour side. Driftwood is five minutes away on foot, on the reef side." />
+      <IslandMap id="gh-map" />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="tips-title">
+    <div class="container">
+      <SectionHead eyebrow="Before you travel" title="Arrival notes" id="tips-title" />
+      <ol class="tips">
+        {
+          tips.map((t, i) => (
+            <li data-reveal style={`--reveal-delay:${(i % 3) * 0.1}s`}>
+              <span class="tip-no meta">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{t.title}</h3>
+              <p>{t.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="tips-ask">
+        Send us your flight time on <a href={whatsappLink('Hello Driftwood, my flight lands at: ')}>WhatsApp</a> and we will suggest the best boat.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand
+    title="Book the room and the boat together"
+    body="Add a shared or private speedboat in the booking flow. We confirm the time with you on WhatsApp and meet you at the jetty."
+    href={bookUrl({ transfer: 'shared' })}
+    cta="Book now"
+    photo="boat-sunset"
+    caption="The lagoon, 6pm"
+  />
+</Base>
+
+<style>
+  .transfers {
+    display: grid;
+    border-top: 1px solid var(--ink);
+  }
+  @media (min-width: 960px) {
+    .transfers {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .transfer {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    justify-items: start;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  @media (min-width: 960px) {
+    .transfer {
+      padding: 2.25rem 2rem 2.25rem 0;
+      border-bottom: 0;
+    }
+    .transfer + .transfer {
+      padding-left: 2rem;
+      border-left: 1px solid var(--hairline);
+    }
+  }
+  .transfer h3 {
+    font-size: var(--step-2);
+    font-weight: 300;
+  }
+  .transfer dl {
+    display: grid;
+    width: 100%;
+  }
+  .transfer dl > div {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-top: 1px solid var(--hairline);
+    font-size: var(--step--1);
+  }
+  .transfer dt {
+    font-size: 0.66rem;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+    padding-top: 0.15rem;
+  }
+  .transfer-notes {
+    display: grid;
+    gap: 0.3rem;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .transfer-self {
+    color: var(--taupe-ink);
+  }
+  .tips {
+    display: grid;
+    gap: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--hairline);
+  }
+  @media (min-width: 760px) {
+    .tips {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 3rem;
+    }
+  }
+  @media (min-width: 1080px) {
+    .tips {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .tips li {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .tips h3 {
+    font-size: var(--step-1);
+    font-weight: 400;
+  }
+  .tips p {
+    color: var(--ink-soft);
+    max-width: 26rem;
+  }
+  .tips-ask {
+    margin-top: var(--space-l);
+    color: var(--ink-soft);
+  }
+</style>

@@ -1,0 +1,270 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Photo from '../components/Photo.astro';
+import SectionHead from '../components/SectionHead.astro';
+import AtAGlance from '../components/AtAGlance.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { site } from '../data/site';
+import { breadcrumbs, lodgingBusiness } from '../lib/schema';
+
+const trail = [
+  { name: 'Home', path: '/' },
+  { name: 'About', path: '/about/' },
+];
+const schema = [lodgingBusiness(Astro.site!, new URL('/og/about.jpg', Astro.site).href), breadcrumbs(Astro.site!, trail)];
+
+const materials = [
+  {
+    photo: 'timber-courtyard',
+    alt: 'Teak-clad pavilion beside a walled courtyard planted with frangipani',
+    caption: 'Teak pavilion, garden courtyard',
+    title: 'Reclaimed teak',
+    body: 'Floors, beds and shutters are made from the hulls of retired fishing boats, planed and oiled by a carpenter in the village.',
+  },
+  {
+    photo: 'plaster-shutter',
+    alt: 'Timber shutter set in a plaster wall, with palm shadows',
+    caption: 'Lime plaster, east wall',
+    title: 'Coral stone and lime plaster',
+    body: 'The walls are coral stone from old island walls, finished in lime plaster by hand. They stay cool through the afternoon.',
+  },
+  {
+    photo: 'reef-view-3',
+    alt: 'White linen pillows in morning light through the shutters',
+    caption: 'Linen, Reef View Room',
+    title: 'Washed linen',
+    body: 'Every bed is made with stone-washed linen, dried on the roof terrace and changed every three days, or daily on request.',
+  },
+];
+
+const people = [
+  { name: 'Aisha', role: 'Runs the house', body: 'Looks after bookings, arrivals and anything you need during your stay. She answers WhatsApp from 8am to 10pm.' },
+  { name: 'Ibrahim', role: 'Reef guide', body: 'Has guided on the house reef for twenty years and leads the morning snorkel.' },
+  { name: 'Mariyam', role: 'Breakfast', body: 'Prepares breakfast every morning: mas huni, roshi, fruit and eggs to order. Coffee from 7am.' },
+  { name: 'Hassan', role: 'Boats', body: 'Captains the sandbank and dolphin trips and checks the sea before each one.' },
+];
+---
+
+<Base
+  title="About Driftwood: a guesthouse on Maafushi, Maldives"
+  description="Twelve rooms of coral stone and reclaimed teak on Maafushi, Kaafu Atoll, built between 2019 and 2023. The house, its materials, the island and its people."
+  og="about"
+  schema={schema}
+>
+  <PageHero
+    eyebrow="About"
+    title="The house"
+    lede={site.story.short}
+    trail={trail}
+    photo={{ key: 'house', mobileKey: 'villa-terrace', alt: 'The house: a whitewashed veranda and a limestone terrace opening onto the garden and pool', caption: 'The veranda and garden terrace' }}
+  />
+
+  <section class="section" aria-labelledby="build-title">
+    <div class="container about-story">
+      <h2 id="build-title" class="eyebrow">Built over four years</h2>
+      <div class="about-copy" data-reveal>
+        <p class="about-lead serif">
+          Driftwood began as a family house on the south side of Maafushi and was extended one room at a time between 2019 and 2023.
+        </p>
+        <div class="body-copy stack">
+          <p>
+            The builders used coral stone salvaged from old island walls and teak from retired fishing boats. The furniture was made on
+            the island. There are twelve rooms around a garden with a small pool, and the roof terrace looks west over the lagoon.
+          </p>
+          <p>
+            We keep it at twelve rooms so that breakfast is served at the table, the reef is never crowded and every guest is met at the
+            jetty by someone from the house.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section materials-band" aria-labelledby="materials-title">
+    <div class="container">
+      <SectionHead eyebrow="Materials" title="Stone, teak and linen" id="materials-title" />
+      <ul role="list" class="materials">
+        {
+          materials.map((m, i) => (
+            <li class="material" data-reveal style={`--reveal-delay:${i * 0.12}s`}>
+              <figure>
+                <div class="frame" data-reveal-img>
+                  <Photo name={m.photo} alt={m.alt} aspect={4 / 5} widths={[360, 560, 760]} sizes="(min-width: 900px) 30vw, 100vw" />
+                </div>
+                <figcaption class="caption">{m.caption}</figcaption>
+              </figure>
+              <h3>{m.title}</h3>
+              <p>{m.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="island-title">
+    <div class="container island-split">
+      <figure class="island-media">
+        <div class="frame" data-reveal-img>
+          <Photo name="island-aerial" alt="A local island from the air: village rooftops, gardens and a turquoise lagoon" aspect={4 / 5} widths={[480, 750, 1080]} sizes="(min-width: 1080px) 40vw, 100vw" />
+        </div>
+        <figcaption class="caption">Kaafu Atoll from the air</figcaption>
+      </figure>
+      <div class="island-copy" data-reveal>
+        <p class="eyebrow">The island</p>
+        <h2 id="island-title">Maafushi</h2>
+        <div class="body-copy stack">
+          <p>
+            Maafushi is a local island in Kaafu Atoll, about 1.3 km long, with a school, a mosque, a harbour and around three thousand
+            residents. In 2010 it was one of the first local islands in the Maldives to open guesthouses.
+          </p>
+          <p>
+            Local islands have local rules. Swimwear is worn on the bikini beach, the sandbank and boat trips. In the village, shoulders
+            and knees are covered, and there is no alcohol on the island.
+          </p>
+        </div>
+        <a class="text-link" href="/getting-here/">Getting here</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--ivory" aria-labelledby="people-title">
+    <div class="container">
+      <SectionHead
+        eyebrow="The people"
+        title="Who runs the house"
+        id="people-title"
+        lede="Fictional, like the rest of Driftwood. These are the people who would run a house like this one."
+      />
+      <ul role="list" class="people">
+        {
+          people.map((p, i) => (
+            <li class="person" data-reveal style={`--reveal-delay:${i * 0.1}s`}>
+              <p class="person-name serif">{p.name}</p>
+              <p class="meta">{p.role}</p>
+              <p>{p.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Key facts">
+    <div class="container container--narrow">
+      <AtAGlance id="about-glance" />
+    </div>
+  </section>
+
+  <CtaBand photo="beachfront-2" caption="The beach in front of the house" />
+</Base>
+
+<style>
+  .about-story {
+    display: grid;
+    gap: 1.75rem;
+  }
+  @media (min-width: 900px) {
+    .about-story {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 3rem;
+    }
+    .about-story > h2 {
+      grid-column: 1 / span 3;
+      padding-top: 0.9rem;
+    }
+    .about-copy {
+      grid-column: 5 / span 7;
+    }
+  }
+  .about-copy {
+    display: grid;
+    gap: 2rem;
+  }
+  .about-lead {
+    max-width: 24ch;
+    font-size: var(--step-3);
+    font-weight: 300;
+    line-height: 1.22;
+  }
+  .materials {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media (min-width: 900px) {
+    .materials {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+    }
+    .material:nth-child(2) {
+      margin-top: 5rem;
+    }
+  }
+  .material {
+    display: grid;
+    gap: 0.9rem;
+    align-content: start;
+  }
+  .material h3 {
+    margin-top: 0.75rem;
+  }
+  .material p {
+    color: var(--ink-soft);
+    max-width: 24rem;
+  }
+  .island-split {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 1080px) {
+    .island-split {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 3rem;
+    }
+    .island-media {
+      grid-column: 2 / span 5;
+    }
+    .island-copy {
+      grid-column: 8 / span 4;
+    }
+  }
+  .island-copy {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+  .people {
+    display: grid;
+    border-top: 1px solid var(--hairline);
+  }
+  @media (min-width: 900px) {
+    .people {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .person {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+    padding: 1.75rem 1.5rem 1.75rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  @media (min-width: 900px) {
+    .person {
+      border-bottom: 0;
+    }
+    .person + .person {
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--hairline);
+    }
+  }
+  .person-name {
+    font-size: var(--step-2);
+    font-weight: 300;
+  }
+  .person p:last-child {
+    color: var(--ink-soft);
+  }
+</style>

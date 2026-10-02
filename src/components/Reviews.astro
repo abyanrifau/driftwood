@@ -1,0 +1,83 @@
+---
+/** Sample guest reviews. Clearly labelled, never in structured data. */
+import SectionHead from './SectionHead.astro';
+import { reviews, reviewsNote } from '../data/reviews';
+
+interface Props {
+  count?: number;
+  title?: string;
+  number?: number;
+}
+const { count = reviews.length, title = 'From guests', number } = Astro.props;
+const list = reviews.slice(0, count);
+---
+
+<section class="section reviews cv" aria-labelledby="reviews-title">
+  <div class="container">
+    <SectionHead number={number} eyebrow="Reviews" title={title} id="reviews-title" />
+    <p class="sample-note label">{reviewsNote}</p>
+    <ul role="list" class="reviews-list">
+      {
+        list.map((r, i) => (
+          <li class="review" data-reveal style={`--reveal-delay:${(i % 3) * 0.12}s`}>
+            <figure>
+              <blockquote>
+                <p>{r.text}</p>
+              </blockquote>
+              <figcaption class="meta">
+                {r.name}, {r.country} · {r.room} · {r.month}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .sample-note {
+    margin: calc(var(--space-xl) * -0.6) 0 var(--space-l);
+  }
+  .reviews-list {
+    display: grid;
+    border-top: 1px solid var(--hairline);
+  }
+  @media (min-width: 900px) {
+    .reviews-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .review {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  @media (min-width: 900px) {
+    .reviews-list {
+      border-bottom: 1px solid var(--hairline);
+    }
+    .review {
+      padding: 2.25rem 2.25rem 2.25rem 0;
+      border-bottom: 0;
+    }
+    .review + .review {
+      padding-left: 2.25rem;
+      border-left: 1px solid var(--hairline);
+    }
+  }
+  .review figure {
+    display: grid;
+    gap: 1.25rem;
+    height: 100%;
+  }
+  blockquote p {
+    font-family: var(--serif);
+    font-size: var(--step-1);
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 30rem;
+  }
+  figcaption {
+    align-self: end;
+  }
+</style>

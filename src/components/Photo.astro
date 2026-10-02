@@ -1,0 +1,44 @@
+---
+/**
+ * A responsive photo: AVIF and WebP srcsets, explicit width and height,
+ * lazy by default. Pass `aspect` to crop around the photo's focal point
+ * (or `focus` to override it), `priority` for the LCP image.
+ */
+import { picData } from '../lib/images';
+
+interface Props {
+  name: string;
+  alt: string;
+  widths?: number[];
+  sizes?: string;
+  aspect?: number;
+  priority?: boolean;
+  /** Secondary images in view at load (e.g. thumbnails) that should not compete with the LCP image */
+  lowPriority?: boolean;
+  /** Override encoder quality, e.g. for a large above-the-fold photo */
+  quality?: { avif: number; webp: number };
+  class?: string;
+  imgClass?: string;
+  /** Focal point for this slot, as a CSS object-position */
+  focus?: string;
+}
+
+const { name, alt, widths, sizes, aspect, priority = false, lowPriority = false, quality, class: className, imgClass, focus } = Astro.props;
+const pic = await picData(name, alt, { widths, sizes, aspect, quality, focus });
+---
+
+<picture class={className}>
+  <source type="image/avif" srcset={pic.avif} sizes={pic.sizes} />
+  <source type="image/webp" srcset={pic.webp} sizes={pic.sizes} />
+  <img
+    src={pic.src}
+    alt={pic.alt}
+    width={pic.width}
+    height={pic.height}
+    loading={priority ? 'eager' : 'lazy'}
+    decoding="async"
+    fetchpriority={priority ? 'high' : lowPriority ? 'low' : undefined}
+    class={imgClass}
+    style={`object-position:${pic.focus}`}
+  />
+</picture>

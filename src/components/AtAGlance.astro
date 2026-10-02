@@ -1,0 +1,88 @@
+---
+/**
+ * Key facts as short, quotable sentences. Written for people skimming and
+ * for AI search tools that quote them.
+ */
+import { site } from '../data/site';
+import { rooms, totalRooms, lowestPrice } from '../data/rooms';
+import { transfers } from '../data/transfers';
+import { money } from '../lib/format';
+
+interface Props {
+  title?: string;
+  id?: string;
+}
+const { title = 'Driftwood at a glance', id = 'glance' } = Astro.props;
+const shared = transfers.find((t) => t.id === 'shared')!;
+const facts = [
+  { term: 'Where', text: `Driftwood is a ${totalRooms}-room guesthouse on Maafushi, a local island in Kaafu Atoll, Maldives.` },
+  { term: 'The reef', text: `The house reef is ${site.location.reefWalkMinutes} minutes from the front door on foot.` },
+  {
+    term: 'Rooms',
+    text: `${rooms.length} room types: ${rooms.map((r) => `${r.name} from ${money(r.fromPrice)}`).join(', ')} a night.`,
+  },
+  { term: 'Included', text: `Breakfast, Wi-Fi, beach towels and snorkel bags are included. Rates start at ${money(lowestPrice)} a night before taxes.` },
+  {
+    term: 'Getting here',
+    text: `The shared speedboat from ${site.location.airport} takes ${shared.crossing} and costs ${shared.priceLabel}.`,
+  },
+  { term: 'Best months', text: 'December to April is dry and calm but busiest. May to October is the quiet season with the lowest rates.' },
+  { term: 'Policies', text: `Check-in from ${site.policies.checkInLabel}, check-out by ${site.policies.checkOutLabel}. Free cancellation up to 7 days before check-in.` },
+];
+---
+
+<section class="glance" aria-labelledby={id}>
+  <h2 id={id} class="glance-title">{title}</h2>
+  <dl class="glance-list">
+    {
+      facts.map((f) => (
+        <div class="glance-row">
+          <dt>{f.term}</dt>
+          <dd>{f.text}</dd>
+        </div>
+      ))
+    }
+  </dl>
+  <p class="glance-note">Driftwood is a fictional business, created by Nuit Works as a website concept.</p>
+</section>
+
+<style>
+  .glance-title {
+    font-size: var(--step-3);
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+  }
+  .glance-list {
+    display: grid;
+  }
+  .glance-row {
+    display: grid;
+    gap: 0.15rem;
+    padding-block: 0.9rem;
+    border-top: 1px solid var(--hairline);
+  }
+  @media (min-width: 640px) {
+    .glance-row {
+      grid-template-columns: 9rem 1fr;
+      gap: 1rem;
+    }
+  }
+  dt {
+    font-size: 0.66rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking);
+    text-transform: uppercase;
+    color: var(--taupe-ink);
+    padding-top: 0.3rem;
+  }
+  dd {
+    margin: 0;
+  }
+  .glance-note {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--hairline);
+    font-size: var(--step--1);
+    color: var(--taupe-ink);
+  }
+</style>
